@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo.png" alt="Tag Companion" width="520">
+  <img src="docs/images/cover.png" alt="Tag Companion: veja o que os seus tags de marketing realmente enviaram">
 </p>
 
 <p align="center">

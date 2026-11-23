@@ -50,7 +50,13 @@ export function TimelineView({
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return session.timeline.filter((item) => {
+    // Newest first: the latest events stay at the top. Sorted by timestamp because
+    // arrival order can differ from event time; ties keep the latest arrival on top.
+    const newestFirst = session.timeline
+      .map((item, index) => ({ item, index }))
+      .sort((a, b) => b.item.timestamp - a.item.timestamp || b.index - a.index)
+      .map(({ item }) => item);
+    return newestFirst.filter((item) => {
       if (kindFilter !== 'all' && item.kind !== kindFilter && item.kind !== 'navigation') {
         return false;
       }
