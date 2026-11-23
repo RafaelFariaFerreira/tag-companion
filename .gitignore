@@ -14,3 +14,6 @@ release/
 *.pem
 .env
 .env.*
+
+# Marcador local do diagram-design (aponta para um perfil na máquina)
+.diagram-design

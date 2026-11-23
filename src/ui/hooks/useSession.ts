@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RuntimeMessage, TabSession } from '@/shared/types';
 import { createTabSession, extractOrigin } from '@/core/session-store';
+import { PAUSED_SITES_KEY, isSitePaused, originsForSite, siteKey } from '@/shared/paused-sites';
 
 export interface UseSessionResult {
   tabId: number | null;
   session: TabSession | null;
   originGranted: boolean;
+  /** Collection paused on this site by the user (the permission is kept). */
+  sitePaused: boolean;
   isRestrictedPage: boolean;
+  /** The header switch: on = granted and not paused. Turning it on asks for permission when needed. */
+  setMonitoring: (on: boolean) => Promise<void>;
   requestOriginPermission: () => Promise<boolean>;
   clearSession: () => Promise<void>;
   setPreserveLog: (value: boolean) => Promise<void>;
@@ -22,6 +27,26 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
   const [tabUrl, setTabUrl] = useState<string>('');
   const [session, setSession] = useState<TabSession | null>(null);
   const [originGranted, setOriginGranted] = useState<boolean>(false);
+  const [pausedSites, setPausedSites] = useState<string[]>([]);
+
+  // Paused sites live in chrome.storage.local so the service worker sees the same list.
+  useEffect(() => {
+    if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+    chrome.storage.local
+      .get(PAUSED_SITES_KEY)
+      .then((stored) => setPausedSites((stored?.[PAUSED_SITES_KEY] as string[] | undefined) ?? []))
+      .catch(() => {});
+    const onChanged = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      area: string,
+    ) => {
+      if (area === 'local' && changes[PAUSED_SITES_KEY]) {
+        setPausedSites((changes[PAUSED_SITES_KEY].newValue as string[] | undefined) ?? []);
+      }
+    };
+    chrome.storage.onChanged.addListener(onChanged);
+    return () => chrome.storage.onChanged.removeListener(onChanged);
+  }, []);
 
   // Resolve active tab ID in sidepanel mode and keep it updated when switching tabs
   useEffect(() => {
@@ -132,10 +157,19 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
       return;
     }
 
-    chrome.permissions
-      .contains({ origins: [`${currentOrigin}/*`] })
-      .then((granted) => setOriginGranted(granted))
-      .catch(() => setOriginGranted(false));
+    const check = () =>
+      chrome.permissions
+        .contains({ origins: [`${currentOrigin}/*`] })
+        .then((granted) => setOriginGranted(granted))
+        .catch(() => setOriginGranted(false));
+    check();
+    // Keep the switch honest when access changes in chrome://extensions
+    chrome.permissions.onAdded?.addListener(check);
+    chrome.permissions.onRemoved?.addListener(check);
+    return () => {
+      chrome.permissions.onAdded?.removeListener(check);
+      chrome.permissions.onRemoved?.removeListener(check);
+    };
   }, [currentOrigin, isRestrictedPage]);
 
   const requestOriginPermission = useCallback(async () => {
@@ -143,17 +177,7 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
       return false;
     }
     try {
-      const originsToRequest = [`${currentOrigin}/*`];
-      try {
-        const hostname = new URL(currentOrigin).hostname;
-        const parts = hostname.split('.');
-        if (parts.length >= 2 && !/^\d+(\.\d+)*$/.test(hostname) && hostname !== 'localhost') {
-          const baseDomain = parts.slice(-2).join('.');
-          originsToRequest.push(`*://*.${baseDomain}/*`);
-        }
-      } catch {
-        // Ignore URL parsing fallback
-      }
+      const originsToRequest = originsForSite(currentOrigin);
 
       const granted = await chrome.permissions.request({
         origins: [...new Set(originsToRequest)],
@@ -171,6 +195,31 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
       return false;
     }
   }, [currentOrigin, isRestrictedPage, tabId]);
+
+  const sitePaused = isSitePaused(currentUrl, pausedSites);
+
+  const writePaused = useCallback(async (key: string, paused: boolean) => {
+    if (!key || typeof chrome === 'undefined' || !chrome.storage?.local) return;
+    const stored = await chrome.storage.local.get(PAUSED_SITES_KEY).catch(() => ({}));
+    const list = ((stored as Record<string, unknown>)[PAUSED_SITES_KEY] as string[] | undefined) ?? [];
+    const next = paused ? [...new Set([...list, key])] : list.filter((k) => k !== key);
+    setPausedSites(next);
+    await chrome.storage.local.set({ [PAUSED_SITES_KEY]: next });
+  }, []);
+
+  const setMonitoring = useCallback(
+    async (on: boolean) => {
+      if (isRestrictedPage) return;
+      const key = siteKey(currentUrl);
+      if (!on) {
+        await writePaused(key, true);
+        return;
+      }
+      await writePaused(key, false);
+      if (!originGranted) await requestOriginPermission();
+    },
+    [currentUrl, isRestrictedPage, originGranted, requestOriginPermission, writePaused],
+  );
 
   const clearSession = useCallback(async () => {
     if (tabId === null || typeof chrome === 'undefined') return;
@@ -200,7 +249,9 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
     tabId,
     session,
     originGranted,
+    sitePaused,
     isRestrictedPage,
+    setMonitoring,
     requestOriginPermission,
     clearSession,
     setPreserveLog,

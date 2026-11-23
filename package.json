@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "description": "Extensão do Chrome que mostra o que os tags de fato enviaram: dataLayer, hits decodificados, consentimento, cookies e diagnósticos automáticos.",
+  "license": "MIT",
+  "author": "Rafael Ferreira",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RafaelFariaFerreira/tag-companion.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",

@@ -8,8 +8,11 @@ const params = new URLSearchParams(location.search);
 const mode = (params.get('mode') as 'devtools' | 'sidepanel') ?? 'devtools';
 const empty = params.has('empty');
 const session = empty ? null : seedSession();
-const granted = !params.has('nogrant');
 const noop = { addListener() {}, removeListener() {} };
+// In-memory chrome.storage.local with change events (?paused starts the demo site paused)
+const store: Record<string, unknown> = params.has('paused') ? { pausedSites: ['loja.exemplo.com.br'] } : {};
+const storageListeners = new Set<(c: Record<string, { oldValue?: unknown; newValue?: unknown }>, area: string) => void>();
+let granted_ = !params.has('nogrant');
 (globalThis as any).chrome = {
   devtools: mode === 'devtools' ? { inspectedWindow: { tabId: 7 } } : undefined,
   tabs: {
@@ -19,10 +22,29 @@ const noop = { addListener() {}, removeListener() {} };
   },
   runtime: {
     connect: () => ({ onMessage: noop, disconnect() {} }),
-    sendMessage: async (m: any) => (m.type === 'GET_SESSION' ? { session } : m.type === 'CHECK_ORIGIN_PERMISSION' ? { granted } : {}),
+    sendMessage: async (m: any) => (m.type === 'GET_SESSION' ? { session } : m.type === 'CHECK_ORIGIN_PERMISSION' ? { granted: granted_ } : {}),
     onMessage: noop,
   },
-  permissions: { contains: async () => granted, request: async () => true },
+  permissions: {
+    contains: async () => granted_,
+    request: async () => { granted_ = true; return true; },
+    onAdded: noop,
+    onRemoved: noop,
+  },
+  storage: {
+    local: {
+      get: async (key: string) => ({ [key]: store[key] }),
+      set: async (items: Record<string, unknown>) => {
+        const changes: Record<string, { oldValue?: unknown; newValue?: unknown }> = {};
+        for (const [k, v] of Object.entries(items)) { changes[k] = { oldValue: store[k], newValue: v }; store[k] = v; }
+        storageListeners.forEach((l) => l(changes, 'local'));
+      },
+    },
+    onChanged: {
+      addListener: (l: any) => storageListeners.add(l),
+      removeListener: (l: any) => storageListeners.delete(l),
+    },
+  },
 };
 
 const { App } = await import('@/ui/App');

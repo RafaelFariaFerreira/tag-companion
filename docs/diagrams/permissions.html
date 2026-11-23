@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permissão por site</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f8f4f1;   /* warm paper */
+      --color-ink:     #1d1614;   /* warm ink */
+      --color-muted:   #615955;   /* warm grey */
+      --color-accent:  #b54016;   /* Tag Companion orange */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1280px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 1280px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Fluxograma · Tag Companion</p>
+    <h1>Permissão por site e o switch de pausa</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="permissions-title permissions-desc">
+        <title id="permissions-title">Permissão por site e o switch de pausa</title>
+        <desc id="permissions-desc">Fluxograma de como o Tag Companion decide o que coletar num site: sem a permissão opcional do site só aparecem hits de rede dos vendors até o usuário ligar o switch e conceder a permissão; com a permissão, um site pausado não grava nada e um site ativo tem coleta completa guardada em chrome.storage.session.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#615955"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#b54016"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2c6194"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f8f4f1"/>
+
+        <!-- Arrows (drawn first, behind nodes) -->
+        <!-- Start → D1 -->
+        <line x1="640" y1="88" x2="640" y2="144" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D1 NÃO → left -->
+        <line x1="540" y1="196" x2="400" y2="196" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D1 SIM → D2 -->
+        <line x1="640" y1="248" x2="640" y2="348" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- Só hits → permissions.request (user action) -->
+        <line x1="280" y1="224" x2="280" y2="372" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- permissions.request → D2 (granted) -->
+        <line x1="400" y1="400" x2="540" y2="400" stroke="#615955" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <!-- D2 NÃO → pausada -->
+        <line x1="740" y1="400" x2="880" y2="400" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- D2 SIM → completa (accent, happy path) -->
+        <line x1="640" y1="452" x2="640" y2="520" stroke="#b54016" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <!-- completa → storage.session -->
+        <line x1="760" y1="548" x2="880" y2="548" stroke="#615955" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow labels -->
+        <rect x="456" y="176" width="28" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="470" y="185" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">NÃO</text>
+
+        <rect x="648" y="292" width="28" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="662" y="301" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">SIM</text>
+
+        <rect x="288" y="292" width="80" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="328" y="301" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">LIGA O SWITCH</text>
+
+        <rect x="432" y="380" width="76" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="470" y="389" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">CONCEDIDA</text>
+
+        <rect x="768" y="380" width="84" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="810" y="389" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">NÃO · PAUSADO</text>
+
+        <rect x="648" y="480" width="28" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="662" y="489" fill="#b54016" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">SIM</text>
+
+        <rect x="796" y="528" width="48" height="12" rx="2" fill="#f8f4f1"/>
+        <text x="820" y="537" fill="#6e6662" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">GRAVA</text>
+
+        <!-- Start oval -->
+        <rect x="520" y="40" width="240" height="48" rx="20" fill="#f8f4f1"/>
+        <rect x="520" y="40" width="240" height="48" rx="20" fill="rgba(29,22,20,0.03)" stroke="rgba(29,22,20,0.30)" stroke-width="1"/>
+        <text x="640" y="68" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Você abre o painel num site</text>
+
+        <!-- D1: Site ativado? -->
+        <polygon points="640,144 740,196 640,248 540,196" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="640" y="194" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Site ativado?</text>
+        <text x="640" y="210" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">permissão de host</text>
+
+        <!-- Só hits de rede -->
+        <rect x="160" y="168" width="240" height="56" rx="6" fill="#f8f4f1"/>
+        <rect x="160" y="168" width="240" height="56" rx="6" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="280" y="194" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Só hits de rede dos vendors</text>
+        <text x="280" y="210" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">sem dataLayer, sem cookies</text>
+
+        <!-- chrome.permissions.request -->
+        <rect x="160" y="372" width="240" height="56" rx="6" fill="#f8f4f1"/>
+        <rect x="160" y="372" width="240" height="56" rx="6" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="280" y="398" fill="#1d1614" font-size="12" font-weight="500" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">chrome.permissions.request</text>
+        <text x="280" y="414" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">o site e seus subdomínios</text>
+
+        <!-- D2: Switch ligado? -->
+        <polygon points="640,348 740,400 640,452 540,400" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="640" y="398" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Switch ligado?</text>
+        <text x="640" y="414" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">chrome.storage.local</text>
+
+        <!-- Coleta pausada (nothing written: optional/dashed treatment) -->
+        <rect x="880" y="372" width="240" height="56" rx="6" fill="#f8f4f1"/>
+        <rect x="880" y="372" width="240" height="56" rx="6" fill="rgba(29,22,20,0.02)" stroke="rgba(29,22,20,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="1000" y="398" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Coleta pausada</text>
+        <text x="1000" y="414" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">permissão mantida · nada é gravado</text>
+
+        <!-- Coleta completa (focal) -->
+        <rect x="520" y="520" width="240" height="56" rx="6" fill="#f8f4f1"/>
+        <rect x="520" y="520" width="240" height="56" rx="6" fill="rgba(229,102,54,0.10)" stroke="#b54016" stroke-width="1"/>
+        <text x="640" y="546" fill="#1d1614" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Coleta completa</text>
+        <text x="640" y="562" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">dataLayer, hits, cookies e consentimento</text>
+
+        <!-- chrome.storage.session (store) -->
+        <rect x="880" y="520" width="240" height="56" rx="6" fill="#f8f4f1"/>
+        <rect x="880" y="520" width="240" height="56" rx="6" fill="rgba(29,22,20,0.05)" stroke="#615955" stroke-width="1"/>
+        <rect x="888" y="526" width="36" height="12" rx="2" fill="transparent" stroke="rgba(97,89,85,0.40)" stroke-width="0.8"/>
+        <text x="906" y="535" fill="rgba(97,89,85,0.90)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="1000" y="550" fill="#1d1614" font-size="12" font-weight="500" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">chrome.storage.session</text>
+        <text x="1000" y="566" fill="#615955" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">apagado ao fechar a aba</text>
+
+        <!-- Legend -->
+        <line x1="40" y1="632" x2="1240" y2="632" stroke="rgba(29,22,20,0.12)" stroke-width="0.8"/>
+        <text x="40" y="652" fill="#615955" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGENDA · A FORMA INDICA O TIPO</text>
+
+        <rect x="40" y="668" width="24" height="12" rx="6" fill="rgba(29,22,20,0.03)" stroke="rgba(29,22,20,0.30)" stroke-width="1"/>
+        <text x="72" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Início (oval)</text>
+
+        <rect x="220" y="668" width="24" height="12" rx="2" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="252" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Estado ou chamada</text>
+
+        <polygon points="412,674 424,668 436,674 424,680" fill="#ffffff" stroke="#1d1614" stroke-width="1"/>
+        <text x="448" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Decisão (losango)</text>
+
+        <rect x="600" y="668" width="24" height="12" rx="2" fill="rgba(29,22,20,0.05)" stroke="#615955" stroke-width="1"/>
+        <text x="632" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Armazenamento</text>
+
+        <rect x="780" y="668" width="24" height="12" rx="2" fill="rgba(29,22,20,0.02)" stroke="rgba(29,22,20,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="812" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Nada é gravado</text>
+
+        <line x1="960" y1="674" x2="988" y2="674" stroke="#615955" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <text x="996" y="678" fill="#615955" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Após conceder</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

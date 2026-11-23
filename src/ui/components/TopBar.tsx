@@ -5,7 +5,6 @@ import {
   Eye,
   EyeOff,
   Minus,
-  ShieldCheck,
   Trash2,
   X,
 } from 'lucide-react';
@@ -14,6 +13,8 @@ import type { ConsentValue, TabSession } from '@/shared/types';
 interface TopBarProps {
   session: TabSession | null;
   originGranted: boolean;
+  sitePaused: boolean;
+  onSetMonitoring: (on: boolean) => void;
   isRestrictedPage: boolean;
   maskPii: boolean;
   onToggleMaskPii: () => void;
@@ -46,6 +47,8 @@ function ConsentValueMark({ value }: { value: ConsentValue }) {
 export function TopBar({
   session,
   originGranted,
+  sitePaused,
+  onSetMonitoring,
   isRestrictedPage,
   maskPii,
   onToggleMaskPii,
@@ -59,6 +62,13 @@ export function TopBar({
   const host = getHostname(session?.currentUrl ?? '');
   const consent = session?.consent;
   const preserveLog = session?.preserveLog ?? true;
+  const monitoring = originGranted && !sitePaused;
+  const switchLabel = monitoring ? 'Monitorando' : sitePaused && originGranted ? 'Pausado' : 'Desativado';
+  const switchTitle = monitoring
+    ? `Pausar a coleta em ${host || 'este site'} (a permissão continua)`
+    : originGranted
+      ? `Retomar a coleta em ${host || 'este site'}`
+      : `Ativar o monitoramento em ${host || 'este site'} (pede permissão)`;
 
   return (
     <header className="bg-cotton border-b border-rule">
@@ -66,21 +76,29 @@ export function TopBar({
         <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
           <span className="inline-flex shrink-0 items-center gap-1.5 text-[15px] font-semibold text-ink whitespace-nowrap">
             <img src="/icons/icon-32.png" width={20} height={20} alt="" className="h-5 w-5" />
-            Tag Companion
+            {compact ? <span className="sr-only">Tag Companion</span> : 'Tag Companion'}
           </span>
+          {!isRestrictedPage && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={monitoring}
+              aria-label={`Coleta neste site: ${switchLabel}`}
+              title={switchTitle}
+              onClick={() => onSetMonitoring(!monitoring)}
+              className="switch shrink-0"
+            >
+              <span className="switch-track" aria-hidden="true">
+                <span className="switch-thumb" />
+              </span>
+              <span className={`text-xs font-medium ${monitoring ? 'text-success' : 'text-muted'}`}>
+                {switchLabel}
+              </span>
+            </button>
+          )}
           {host && !compact && (
             <span className="num text-xs text-muted truncate min-w-0" title={host}>
               {host}
-            </span>
-          )}
-          {!isRestrictedPage && originGranted && (
-            <span
-              title="Monitoramento completo ativo (dataLayer, webRequest e cookies)"
-              className="inline-flex items-center gap-1 text-xs font-medium text-success whitespace-nowrap"
-            >
-              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              {!compact && 'Ativo'}
-              {compact && <span className="sr-only">Ativo</span>}
             </span>
           )}
         </div>
@@ -172,6 +190,18 @@ export function TopBar({
           </button>
         </div>
       </div>
+
+      {!isRestrictedPage && originGranted && sitePaused && (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-rule bg-paper-2 px-3 py-2">
+          <p className="text-[13px] text-ink-2 min-w-0 flex-1 basis-60">
+            Coleta pausada em <strong className="font-semibold text-ink">{host || 'este site'}</strong>. A
+            permissão continua; o que aparece abaixo foi capturado antes da pausa.
+          </p>
+          <button type="button" onClick={() => onSetMonitoring(true)} className="btn btn-outline">
+            Retomar
+          </button>
+        </div>
+      )}
 
       {!isRestrictedPage && !originGranted && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-warn/40 bg-warn/12 px-3 py-2.5">

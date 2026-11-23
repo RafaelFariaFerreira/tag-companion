@@ -26,7 +26,9 @@ export function App({ mode }: AppProps) {
   const {
     session: liveSession,
     originGranted,
+    sitePaused,
     isRestrictedPage,
+    setMonitoring,
     requestOriginPermission,
     clearSession,
     setPreserveLog,
@@ -141,6 +143,8 @@ export function App({ mode }: AppProps) {
       <TopBar
         session={session}
         originGranted={originGranted}
+        sitePaused={sitePaused}
+        onSetMonitoring={setMonitoring}
         isRestrictedPage={isRestrictedPage}
         maskPii={maskPii}
         onToggleMaskPii={() => setMaskPii((v) => !v)}

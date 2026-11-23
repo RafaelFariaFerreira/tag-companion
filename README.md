@@ -3,334 +3,198 @@
 </p>
 
 <p align="center">
-  <strong>Veja o que os seus tags de marketing <em>realmente</em> enviaram.</strong><br>
-  Extensão do Chrome (Manifest V3) para quem implementa e audita GTM, GA4, Meta Pixel, Google Ads e cia.
+  <img alt="Chrome MV3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-b54016">
+  <img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-1d1614">
+  <img alt="Código aberto" src="https://img.shields.io/badge/c%C3%B3digo-aberto-2e7d4f">
 </p>
 
-<p align="center">
-  <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-F26B3A">
-  <img alt="React 19" src="https://img.shields.io/badge/React-19-231C19">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-231C19">
-  <img alt="Testes" src="https://img.shields.io/badge/testes-30%20passando-2E7D4F">
-</p>
+**O Tag Companion mostra o que os seus tags de marketing realmente enviaram.** O Tag Assistant diz o que o GTM *decidiu* disparar; o Tag Companion olha a rede e a página e mostra se o hit saiu, se chegou, se foi bloqueado, se saiu antes do consentimento ou se saiu duas vezes. Funciona até com tags que não passam pelo GTM.
+
+É grátis, roda inteiro no seu navegador e não envia nada para servidor nenhum.
+
+## Instalar
+
+### Pela Chrome Web Store
+
+A extensão está em análise na Chrome Web Store. Assim que for publicada, o link aparece aqui e a instalação fica em um clique.
+
+### Enquanto isso, instale manualmente
+
+1. Baixe o arquivo `tag-companion-<versão>.zip` em [Releases](https://github.com/RafaelFariaFerreira/tag-companion/releases/latest) e descompacte numa pasta.
+2. No Chrome, abra `chrome://extensions`.
+3. Ligue o **Modo do desenvolvedor**, no canto superior direito.
+4. Clique em **Carregar sem compactação** e escolha a pasta descompactada.
+5. Fixe o ícone do cão na barra do Chrome (no ícone de quebra-cabeça).
+
+### Primeiros passos
+
+1. Abra o site que você quer auditar.
+2. Clique no ícone do Tag Companion. O painel abre ao lado da página. Se preferir, abra o DevTools e vá na aba **Tags**.
+3. Clique em **Ativar neste site** e recarregue a página.
+4. Navegue, clique, envie formulários. Tudo aparece em tempo real.
+
+Para parar de observar um site sem perder a permissão, desligue o switch ao lado da logo.
+
+## O que você vê
+
+![Por vendor: cada biblioteca com os hits que enviou](docs/store/01-por-vendor.png)
+
+**Por vendor.** Cada biblioteca carregada, com os hits que ela disparou logo abaixo. O que falhou ou nunca disparou fica marcado.
+
+![Inspetor: cada hit decodificado](docs/store/02-inspetor.png)
+
+**Inspetor.** Clique em qualquer hit para ver os parâmetros com nomes legíveis, o consentimento no momento do envio e o push do `dataLayer` que o originou.
+
+![Nove diagnósticos automáticos](docs/store/03-diagnosticos.png)
+
+**Diagnósticos.** A extensão acha os problemas sozinha: tag antes do consentimento, hit bloqueado, conversão sem hit, disparo duplicado, conversão sem `event_id` e mais.
+
+![Consent Mode v2 e cookies](docs/store/04-consentimento.png)
+
+**Consentimento e cookies.** `gcs` e `gcd` decodificados, o histórico de mudanças e os cookies de marketing criados antes do consentimento.
+
+![No DevTools ou no painel lateral](docs/store/05-painel-lateral.png)
+
+**No DevTools ou ao lado da página.** A mesma interface nos dois lugares.
+
+**Vendors suportados:** GTM e sGTM, GA4, Google Ads, Meta Pixel, LinkedIn Insight, HubSpot, Microsoft Clarity, TikTok, Reddit, X e Mixpanel.
+
+## Perguntas frequentes
+
+**Meus dados vão para algum lugar?** Não. Tudo fica no seu navegador e a sessão de cada aba é apagada quando você fecha a aba. E-mails, telefones e hashes aparecem mascarados na tela e no arquivo exportado.
+
+**A extensão fica observando para sempre?** Ela observa só os sites que você ativou, em toda visita, até você desligar o switch ou remover o acesso em `chrome://extensions`. Nos outros sites ela não injeta nada.
+
+**Por que pede permissão site por site?** Para não precisar de acesso a todos os sites na instalação. Você decide onde ela atua.
+
+**Preciso abrir o DevTools?** Não. O painel lateral abre pelo ícone. O DevTools é útil quando você quer o corpo completo das requisições POST.
 
 ---
 
-O Tag Assistant mostra o que o GTM *decidiu* disparar. O **Tag Companion** mostra o que saiu de verdade pela rede: cada push do `dataLayer`, cada hit decodificado, o estado do Consent Mode v2, os cookies de marketing e nove diagnósticos automáticos — inclusive de tags fixos no código, fora do GTM.
+# Para desenvolvedores
 
-![Painel do Tag Companion no DevTools](docs/images/devtools.png)
+O Tag Companion é código aberto sob a [licença MIT](LICENSE). Issues e pull requests são bem-vindos.
 
-## Sumário
+## Rodar localmente
 
-- [O que ele mostra](#o-que-ele-mostra)
-- [Os quatro estados de um tag](#os-quatro-estados-de-um-tag)
-- [Arquitetura](#arquitetura)
-  - [Visão geral](#visão-geral)
-  - [O caminho de um evento](#o-caminho-de-um-evento)
-  - [Coleta em três mundos](#coleta-em-três-mundos)
-  - [Núcleo: da requisição ao diagnóstico](#núcleo-da-requisição-ao-diagnóstico)
-  - [Módulos de vendor](#módulos-de-vendor)
-  - [Permissões e privacidade](#permissões-e-privacidade)
-- [Diagnósticos automáticos](#diagnósticos-automáticos)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Como rodar](#como-rodar)
-
-## O que ele mostra
-
-| Aba | Para que serve |
-| --- | --- |
-| **Por Vendor** | Cada biblioteca carregada com os hits que ela disparou logo abaixo. Os números no topo filtram a lista (tudo, só carregado, só disparado, alertas). |
-| **Linha do tempo** | `dataLayer`, hits, scripts, consentimento, cookies e navegações em ordem cronológica, com busca. |
-| **Diagnósticos** | Os problemas que a extensão encontrou sozinha, com severidade e próximo passo. |
-| **Consentimento & Cookies** | Estado atual do Consent Mode v2 (`gcs`, `gcd`), histórico de mudanças e cookies de marketing criados antes ou depois do consentimento. |
-
-Clicar em qualquer item abre o **inspetor**: parâmetros decodificados com nome legível, consentimento no momento do hit, o push do `dataLayer` que o originou e a URL completa.
-
-![Inspetor de um hit do GA4](docs/images/inspector.png)
-
-Funciona em dois lugares, com a mesma interface:
-
-<table>
-  <tr>
-    <td width="62%"><img src="docs/images/diagnostics.png" alt="Diagnósticos no DevTools"></td>
-    <td width="38%"><img src="docs/images/sidepanel.png" alt="Side Panel do Chrome"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>DevTools → aba Tags</b><br>tela larga, inspetor ao lado</td>
-    <td align="center"><b>Side Panel</b><br>clique no ícone da extensão</td>
-  </tr>
-</table>
-
-## Os quatro estados de um tag
-
-A forma diz o estado antes da cor, para continuar legível para quem não distingue vermelho de verde.
-
-![Carregado, Disparado, Falhou, Carregou mas não disparou](docs/images/states.svg)
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Carregado: script do vendor chega
-    Carregado --> Disparado: hit com resposta 2xx/3xx
-    Carregado --> Falhou: ERR_ABORTED, ERR_BLOCKED_BY_CLIENT, 4xx/5xx
-    Carregado --> CarregouNaoDisparou: nenhum hit após o carregamento
-    Disparado --> Disparado: novos hits
-    CarregouNaoDisparou --> Disparado: um hit chega depois
-    CarregouNaoDisparou: Carregou, não disparou
+```bash
+pnpm install
+pnpm test          # testes (Vitest)
+pnpm build         # gera dist/
+pnpm preview:ui    # a interface com dados de exemplo, sem precisar da extensão
 ```
+
+- **Carregar a extensão:** `chrome://extensions` → **Carregar sem compactação** → pasta `dist/`.
+- **Preview:** abre em `http://localhost:5199/preview/index.html`. Parâmetros: `?mode=sidepanel` para o painel estreito, `&nogrant` para o estado sem permissão, `&paused` para o site pausado. Os dados do preview são fictícios.
+- **Página de teste:** `npx serve demo` serve `demo/test-site.html`, com cenários de tags para disparar.
+
+**Stack:** TypeScript, React 19, Tailwind CSS 4, Vite e Vitest. O núcleo (`src/core/`) é TypeScript puro, sem APIs do Chrome, e é ele que concentra os testes.
 
 ## Arquitetura
 
-### Visão geral
+Tudo o que a extensão coleta converge para o **service worker**, que mantém uma sessão por aba e a transmite para a interface.
 
-A extensão tem quatro peças que conversam por mensagens do Chrome. Tudo o que é coletado converge para o **service worker**, que mantém uma sessão por aba e a transmite em tempo real para a interface.
-
-```mermaid
-flowchart LR
-    subgraph PAGE["🌐 Página inspecionada"]
-        direction TB
-        DL["window.dataLayer<br/>gtag() · fbq() · _hsq"]
-        OBS["page-observer<br/><i>mundo MAIN</i>"]
-        BR["content-bridge<br/><i>mundo ISOLATED</i>"]
-        DL -. intercepta .-> OBS
-        OBS -- window.postMessage --> BR
-    end
-
-    subgraph NET["📡 Rede do navegador"]
-        WR["chrome.webRequest<br/>onBeforeRequest · onCompleted · onErrorOccurred"]
-        CK["chrome.cookies.onChanged"]
-    end
-
-    subgraph DT["🛠️ DevTools"]
-        NB["network-bridge<br/>chrome.devtools.network"]
-    end
-
-    SW["⚙️ <b>Service worker</b><br/>session-store: uma TabSession por aba<br/>core: vendors · consent · correlator<br/>diagnostics · pii"]
-
-    subgraph UI["🖥️ Interface React"]
-        PANEL["Painel Tags<br/>(DevTools)"]
-        SIDE["Side Panel"]
-    end
-
-    BR -- PAGE_OBSERVER_EVENT --> SW
-    WR --> SW
-    CK --> SW
-    NB -- "DEVTOOLS_NETWORK_REQUEST<br/>POST completo + initiator" --> SW
-    SW == "SESSION_UPDATE (port)" ==> PANEL
-    SW == "SESSION_UPDATE (port)" ==> SIDE
-    UI -. comandos .-> SW
-
-    classDef page fill:#FFF4EE,stroke:#F26B3A,color:#231C19
-    classDef core fill:#231C19,stroke:#231C19,color:#FAF8F6
-    classDef ui fill:#F3EFEC,stroke:#B9AFA8,color:#231C19
-    class DL,OBS,BR page
-    class SW core
-    class PANEL,SIDE ui
-```
-
-As mensagens trocadas (`RuntimeMessage` em `src/shared/types.ts`):
-
-| Mensagem | De → para | Para quê |
-| --- | --- | --- |
-| `PAGE_OBSERVER_EVENT` | content-bridge → service worker | Push do `dataLayer`, comando de consentimento, global de vendor, contexto da página. |
-| `DEVTOOLS_NETWORK_REQUEST` | network-bridge → service worker | Requisição com corpo POST completo e pilha do initiator. |
-| `SESSION_UPDATE` | service worker → interface | A sessão inteira da aba, a cada mudança. |
-| `GET_SESSION` · `CLEAR_SESSION` · `SET_PRESERVE_LOG` | interface → service worker | Carregar, limpar e manter o registro entre navegações. |
-| `ACTIVATE_ORIGIN` · `CHECK_ORIGIN_PERMISSION` | interface → service worker | Ativar a observação no site atual. |
+![Arquitetura do Tag Companion](docs/images/diagram-architecture.png)
 
 | Peça | Arquivo | Papel |
 | --- | --- | --- |
-| Service worker | `src/background/service-worker.ts` | Escuta rede, cookies e mensagens; guarda a sessão por aba em `chrome.storage.session`; registra os scripts de observação só nos sites ativados. |
-| Observador da página | `src/collectors/page-observer-core.ts` | Roda no mundo `MAIN` em `document_start`, envolve `dataLayer.push` e `gtag()` e detecta globais de vendors. |
+| Service worker | `src/background/service-worker.ts` | Escuta a rede, os cookies e as mensagens; guarda a sessão por aba; registra os scripts de observação só nos sites ativados e não pausados. |
+| Observador da página | `src/collectors/page-observer-core.ts` | Roda no mundo `MAIN` em `document_start`; envolve `dataLayer.push` e `gtag()` e detecta globais de vendors. |
 | Ponte de conteúdo | `src/collectors/content-bridge.ts` | Mundo `ISOLATED`: recebe o `postMessage` da página e repassa ao service worker. |
-| Ponte do DevTools | `src/devtools/network-bridge.ts` | Completa os hits com o corpo POST inteiro (lotes do GA4) e a pilha do initiator, usada para saber se o tag veio do GTM. |
-| Interface | `src/ui/` | React 19 + Tailwind 4, a mesma árvore para o painel do DevTools e o Side Panel. |
+| Ponte do DevTools | `src/devtools/network-bridge.ts` | Completa os hits com o corpo POST inteiro e a pilha do initiator, usada para saber se o tag veio do GTM. |
+| Interface | `src/ui/` | React; a mesma árvore para o painel do DevTools e o painel lateral. |
 
 ### O caminho de um evento
 
-Um `purchase` empurrado pelo código da loja, do `dataLayer.push` até a tela:
+![Do dataLayer.push à tela](docs/images/diagram-event-sequence.png)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App as Código da loja
-    participant Obs as page-observer (MAIN)
-    participant Br as content-bridge (ISOLATED)
-    participant SW as Service worker
-    participant Net as webRequest
-    participant UI as Painel / Side Panel
+O observador roda no mundo `MAIN` porque só ali enxerga o `dataLayer` da página. Ele não fala direto com a extensão; quem faz isso é a ponte no mundo `ISOLATED`. Por isso a extensão vê tags fora do GTM: um `fbq('track')` fixo no HTML ou um `dataLayer.push` feito pelo React aparecem igual.
 
-    App->>Obs: dataLayer.push({ event: "purchase", ... })
-    Obs->>Br: postMessage({ type: "datalayer_push" })
-    Br->>SW: PAGE_OBSERVER_EVENT
-    SW->>SW: registra o evento na TabSession
-    Note over App,Net: o GTM reage ao push e dispara os tags
-    Net->>SW: onBeforeRequest /g/collect?en=purchase
-    SW->>SW: vendors.ga4.parse() → ParsedHit
-    SW->>SW: correlator: event_id exato ou janela de 3 s
-    Net->>SW: onCompleted 204
-    SW->>SW: status = disparado · runDiagnostics()
-    SW-->>UI: SESSION_UPDATE (sessão inteira, pela port)
-    UI->>UI: re-render: hit aparece sob GA4, ligado ao push
-```
+### Os quatro estados de um tag
 
-### Coleta em três mundos
+![Carregado, Disparado, Falhou, Carregou mas não disparou](docs/images/diagram-tag-states.png)
 
-O Chrome isola o JavaScript da extensão do JavaScript da página. Para ler o `dataLayer` *e* falar com o service worker, a coleta é feita em três camadas:
+Na interface, cada estado tem uma forma própria (anel, disco, X, anel tracejado), para continuar legível sem depender só da cor.
 
-```mermaid
-flowchart TB
-    subgraph MAIN["Mundo MAIN — mesmo JS da página"]
-        A["page-observer-core.ts<br/>• envolve dataLayer.push<br/>• reaplica o wrapper quando o GTM sobrescreve push<br/>• lê google_tag_data.ics (consentimento)<br/>• detecta fbq, clarity, _linkedin_data_partner_ids, _hsq"]
-    end
-    subgraph ISO["Mundo ISOLATED — content script"]
-        B["content-bridge.ts<br/>aceita só mensagens com source = tag-companion-main"]
-    end
-    subgraph EXT["Contexto da extensão"]
-        C["service-worker.ts"]
-    end
-    A -- "window.postMessage" --> B
-    B -- "chrome.runtime.sendMessage" --> C
-```
+### Permissão por site e o switch de pausa
 
-Por isso a extensão enxerga tags que **não** passam pelo GTM: um `fbq('track')` fixo no HTML ou um `dataLayer.push` feito pelo React aparecem igual, e o initiator de cada requisição diz se o hit veio do `gtm.js`, de um sGTM em domínio próprio ou de um script fixo na página.
+![Permissão e pausa](docs/images/diagram-permissions.png)
 
-### Núcleo: da requisição ao diagnóstico
+- Os domínios dos vendors vêm declarados no `manifest.json`. O site auditado fica em `optional_host_permissions` e só é pedido quando o usuário ativa, valendo para o site e seus subdomínios (nunca para um sufixo como `.com.br`).
+- A pausa é guardada em `chrome.storage.local` (`src/shared/paused-sites.ts`). Ao pausar, o service worker tira os scripts do site e ignora os eventos dele, mas mantém a permissão.
 
-Tudo em `src/core/` é TypeScript puro, sem APIs do Chrome, e por isso é coberto por testes unitários.
-
-```mermaid
-flowchart LR
-    REQ["RawNetworkRequest"] --> MATCH{"vendors.match(url)"}
-    MATCH -- script --> SCR["LoadedScript"]
-    MATCH -- hit --> PARSE["vendor.parse()"] --> HIT["ParsedHit<br/>params com rótulo legível"]
-    MATCH -- nada --> IGN["ignorado"]
-    HIT --> CONS["consent.ts<br/>decodifica gcs / gcd"]
-    HIT --> CORR["correlator.ts<br/>event_id ou janela de 3 s"]
-    PUSH["DataLayerEvent"] --> CORR
-    CK["MarketingCookie"] --> DIAG
-    SCR --> DIAG
-    CONS --> DIAG["diagnostics.ts<br/>9 regras"]
-    CORR --> DIAG
-    DIAG --> SESS[("TabSession")]
-    SESS --> PII["pii.ts<br/>mascara e-mail, telefone, hashes"]
-    PII --> OUT["UI · exportação JSON"]
-```
+### Núcleo
 
 | Módulo | Responsabilidade |
 | --- | --- |
-| `session-store.ts` | Máquina de estado da sessão: registra requisições, eventos da página, cookies e navegações; monta os grupos "Por Vendor". |
-| `consent.ts` | Decodifica `gcs` e `gcd` do Consent Mode v2, comandos `gtag('consent')` e `google_tag_data.ics`. |
-| `correlator.ts` | Liga cada push do `dataLayer` aos hits que ele gerou: `event_id` exato ou janela de 3 s, com equivalências semânticas (`purchase` ↔ `conversion` ↔ `CompletePayment`). |
+| `session-store.ts` | Estado da sessão: registra requisições, eventos da página, cookies e navegações; monta os grupos "Por vendor". |
+| `consent.ts` | Decodifica `gcs`, `gcd`, comandos `gtag('consent')` e `google_tag_data.ics`. |
+| `correlator.ts` | Liga cada push do `dataLayer` aos hits que ele gerou: `event_id` exato ou janela de 3 s, com equivalências como `purchase` ↔ `conversion` ↔ `CompletePayment`. |
 | `diagnostics.ts` | As nove regras automáticas (tabela abaixo). |
-| `pii.ts` | Detecta e mascara PII na tela e na exportação. |
-| `exporter.ts` | Gera o JSON da sessão, sempre com PII mascarada. |
+| `pii.ts` · `exporter.ts` | Detecta e mascara PII; gera o JSON exportado, sempre mascarado. |
 
-### Módulos de vendor
+### Diagnósticos
 
-Cada vendor é um módulo independente com a mesma interface. Adicionar um vendor novo é escrever um arquivo e registrá-lo em `src/vendors/index.ts`.
+| Regra | O que detecta |
+| --- | --- |
+| `tag_before_consent` | Hit de mídia ou cookie de marketing com `ad_storage = denied` (o ping sem cookies do GA4, `gcs=G100`, é aceito). |
+| `hit_lost` | `ERR_ABORTED`, `ERR_BLOCKED_BY_CLIENT` ou HTTP 4xx/5xx. |
+| `event_without_hit` | Evento de conversão no `dataLayer` sem hit em 5 s. |
+| `duplicate_hit` | O mesmo evento ao mesmo vendor em 2 s, ou pelo GTM e por um script fixo. |
+| `missing_dedup_key` | Conversão sem `eid` / `event_id` para deduplicar com a API de conversões. |
+| `wrong_property` | Mais de uma propriedade GA4 ou container GTM na página. |
+| `pii_in_url` | E-mail ou telefone em texto puro na URL do hit. |
+| `click_id_not_stored` | `gclid` / `fbclid` na URL sem o cookie `_gcl_aw` / `_fbc` depois de 3 s. |
+| `loaded_no_fire` | Biblioteca carregada que nunca disparou. |
+
+## Adicionar um vendor
+
+Cada vendor é um módulo em `src/vendors/` com a mesma interface:
 
 ```ts
 export interface VendorModule {
   id: VendorId;
   name: string;
-  category: VendorCategory;              // tag_manager | analytics | ads | crm | session_replay
+  category: VendorCategory;                                       // tag_manager | analytics | ads | crm | session_replay
   match(url: string, resourceType?: string): VendorMatch | null;  // é script ou hit?
-  parse(request: RawNetworkRequest): ParsedHit[];                 // um request pode ter N hits (lotes do GA4)
+  parse(request: RawNetworkRequest): ParsedHit[];                 // um request pode ter vários hits (lotes do GA4)
   label(param: string): string;                                   // "epn.value" → "Evento (num): value"
 }
 ```
 
-```mermaid
-mindmap
-  root((Vendors))
-    Tag manager
-      GTM web
-      sGTM em domínio próprio
-    Analytics
-      GA4
-      Mixpanel
-    Ads
-      Google Ads
-      Meta Pixel
-      LinkedIn Insight
-      TikTok Pixel
-      Reddit Pixel
-      X Pixel
-    CRM
-      HubSpot
-    Session replay
-      Microsoft Clarity
-```
+1. Crie `src/vendors/<vendor>.ts` implementando a interface.
+2. Registre-o em `VENDOR_MODULES`, em `src/vendors/index.ts`, e o id em `VendorId` (`src/shared/types.ts`).
+3. Adicione os domínios do vendor em `host_permissions`, no `manifest.json`.
+4. Escreva os testes em `tests/vendors.test.ts` com URLs reais do vendor.
 
-### Permissões e privacidade
-
-A extensão **não** pede `<all_urls>` na instalação. Os domínios dos vendors vêm declarados no manifesto; o site que você está depurando só é observado depois que você clica em **Ativar neste site**.
-
-```mermaid
-flowchart TD
-    A([Você abre o painel em loja.exemplo.com.br]) --> B{O site já foi ativado?}
-    B -- não --> C[Faixa âmbar: Ativar neste site]
-    C --> D["chrome.permissions.request<br/>*://loja.exemplo.com.br/* e subdomínios"]
-    D -- negado --> E[Só hits de rede dos vendors]
-    D -- concedido --> F["registerContentScripts<br/>observer MAIN + bridge ISOLATED"]
-    B -- sim --> F
-    F --> G[dataLayer, cookies de marketing e hits bloqueados]
-    G --> H[(chrome.storage.session<br/>apagado ao fechar a aba)]
-```
-
-![Pedido de permissão por site](docs/images/permission.png)
-
-- **Tudo local:** nenhum dado sai do navegador; a sessão vive em `chrome.storage.session` e é apagada ao fechar a aba.
-- **PII mascarada por padrão:** e-mails, telefones e hashes aparecem mascarados na tela e sempre mascarados no JSON exportado. O botão **PII oculta** revela os valores só na sua tela.
-
-## Diagnósticos automáticos
-
-| Regra | O que detecta | Severidade típica |
-| --- | --- | --- |
-| `tag_before_consent` | Hit de mídia ou cookie de marketing criado com `ad_storage = denied` (o ping sem cookies do GA4 com `gcs=G100` é aceito). | Alta |
-| `hit_lost` | Requisição com `ERR_ABORTED`, `ERR_BLOCKED_BY_CLIENT` ou HTTP 4xx/5xx — aparece como "disparado" no Tag Assistant, mas não chegou ao vendor. | Alta |
-| `event_without_hit` | Evento de conversão no `dataLayer` (`purchase`, `generate_lead`…) sem nenhum hit em 5 s. | Alta |
-| `duplicate_hit` | O mesmo evento enviado duas vezes ao mesmo vendor em 2 s, ou pelo GTM e por um script fixo. | Média |
-| `missing_dedup_key` | Conversão sem `eid` / `event_id`, necessária para deduplicar navegador e servidor (CAPI). | Média |
-| `wrong_property` | Mais de uma propriedade GA4 ou container GTM na mesma página. | Média |
-| `pii_in_url` | E-mail ou telefone em texto puro na URL do hit. | Alta |
-| `click_id_not_stored` | `gclid` / `fbclid` na URL sem o cookie correspondente (`_gcl_aw`, `_fbc`) depois de 3 s. | Média |
-| `loaded_no_fire` | Biblioteca carregada que nunca disparou. | Baixa |
-
-## Estrutura do projeto
+## Estrutura
 
 ```text
 tag-companion/
-├── manifest.json              # MV3: permissões, side panel, devtools_page
-├── devtools.html · panel.html · sidepanel.html
+├── manifest.json          # MV3: permissões, side panel, devtools_page
 ├── src/
-│   ├── background/            # service worker + coletor de cookies
-│   ├── collectors/            # observador MAIN e ponte ISOLATED
-│   ├── devtools/              # registro do painel "Tags" e ponte de rede
-│   ├── core/                  # sessão, consentimento, correlação, diagnósticos, PII, exportação
-│   ├── vendors/               # um módulo por vendor
-│   ├── shared/                # tipos e constantes
-│   └── ui/                    # React: App, componentes, tokens de design
-├── preview/                   # UI com dados de exemplo, sem precisar da extensão
-├── tests/                     # Vitest
-├── demo/test-site.html        # página com cenários de teste
-├── public/icons · public/fonts
-└── scripts/                   # build (Vite) e instalação
+│   ├── background/        # service worker e coletor de cookies
+│   ├── collectors/        # observador MAIN e ponte ISOLATED
+│   ├── devtools/          # painel "Tags" e ponte de rede
+│   ├── core/              # sessão, consentimento, correlação, diagnósticos, PII
+│   ├── vendors/           # um módulo por vendor
+│   ├── shared/            # tipos, constantes e regra de pausa
+│   └── ui/                # React: componentes e tokens de design
+├── preview/               # UI com dados de exemplo
+├── tests/                 # Vitest
+├── demo/                  # página de teste
+└── docs/                  # imagens, prints e diagramas (docs/diagrams/*.html)
 ```
 
-## Como rodar
+## Contribuir
 
-```bash
-pnpm install
-pnpm test        # 30 testes: vendors, consentimento, correlação, diagnósticos, PII, sessão, observador
-pnpm build       # gera dist/
-```
+1. Faça um fork e crie uma branch a partir da `main`.
+2. Rode `pnpm test` e `pnpm build` antes de abrir o pull request.
+3. Para mudanças na interface, anexe um print do `pnpm preview:ui` no PR.
+4. Mantenha o princípio do projeto: nada sai do navegador e nada é coletado sem o usuário ativar o site.
 
-1. Abra `chrome://extensions` e ative o **Modo do desenvolvedor**.
-2. Clique em **Carregar sem compactação** e escolha a pasta `dist/`.
-3. Abra um site (ou `npx serve demo` para a página de teste).
-4. Clique no ícone do **Tag Companion** para o Side Panel, ou abra o DevTools → aba **Tags**.
-5. Clique em **Ativar neste site** e recarregue a página.
+Os diagramas desta página têm a versão editável em HTML em [`docs/diagrams/`](docs/diagrams).
 
-**Mexendo só na interface?** `pnpm preview:ui` abre a UI com uma sessão de exemplo em `http://localhost:5199/preview/index.html` (`?mode=sidepanel` para o painel estreito, `&nogrant` para o estado sem permissão). Os dados do preview são fictícios.
+## Licença
+
+[MIT](LICENSE) © 2026 Rafael Ferreira
