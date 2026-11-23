@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tag Companion — Página de Teste B2B</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        max-width: 780px;
+        margin: 40px auto;
+        padding: 0 20px;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      h1 { margin-bottom: 6px; }
+      p { color: #475569; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 24px;
+      }
+      button {
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+      }
+      button:hover { background: #eff6ff; border-color: #2563eb; }
+      button span { display: block; font-weight: 400; color: #64748b; margin-top: 4px; font-size: 12px; }
+      pre {
+        margin-top: 24px;
+        padding: 14px;
+        border-radius: 10px;
+        background: #0f172a;
+        color: #e2e8f0;
+        font-size: 12px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tag Companion — Sandbox de Testes</h1>
+    <p>
+      Sirva esta página localmente (ex: <code>npx serve demo</code>), ative a extensão
+      <strong>Tag Companion</strong> neste domínio e teste os cenários abaixo no painel
+      <strong>Tags</strong> do DevTools ou no Side Panel.
+    </p>
+
+    <div class="grid">
+      <button onclick="setConsentDenied()">
+        1. Consentimento negado
+        <span>gtag('consent', 'default', denied)</span>
+      </button>
+      <button onclick="setConsentGranted()">
+        2. Aceitar consentimento
+        <span>gtag('consent', 'update', granted)</span>
+      </button>
+      <button onclick="fireLeadSuccess()">
+        3. Lead válido (GA4 + Meta)
+        <span>dataLayer + event_id + /g/collect + /tr</span>
+      </button>
+      <button onclick="fireAbortedMeta()">
+        4. Hit cancelado (ERR_ABORTED)
+        <span>Simula AbortController durante envio</span>
+      </button>
+      <button onclick="fireConversionNoHit()">
+        5. Evento sem hit (5 s)
+        <span>push generate_lead sem requisição</span>
+      </button>
+      <button onclick="fireDuplicateLead()">
+        6. Disparo duplicado (&lt; 2 s)
+        <span>Dois hits GA4 iguais seguidos</span>
+      </button>
+      <button onclick="firePiiLeak()">
+        7. Vazamento de PII
+        <span>Envia e-mail em texto claro no dl</span>
+      </button>
+      <button onclick="simulateLoadedNoFire()">
+        8. LinkedIn carregado sem disparo
+        <span>Expõe global _linkedin_data_partner_ids</span>
+      </button>
+    </div>
+
+    <pre id="log">Pronto para simular eventos...</pre>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+
+      function log(msg) {
+        const el = document.getElementById('log');
+        el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + el.textContent;
+      }
+
+      function setConsentDenied() {
+        gtag('consent', 'default', {
+          ad_storage: 'denied',
+          analytics_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+        });
+        log('Consentimento definido como denied');
+      }
+
+      function setConsentGranted() {
+        gtag('consent', 'update', {
+          ad_storage: 'granted',
+          analytics_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+        });
+        log('Consentimento atualizado para granted');
+      }
+
+      function fireLeadSuccess() {
+        const eid = 'lead_' + Date.now();
+        window.dataLayer.push({
+          event: 'generate_lead',
+          event_id: eid,
+          form_name: 'demo_request',
+        });
+        fetch(
+          `https://www.google-analytics.com/g/collect?v=2&tid=G-DEMO12345&en=generate_lead&ep.event_id=${eid}&gcs=G111&dl=${encodeURIComponent(location.href)}`,
+          { method: 'POST', mode: 'no-cors' },
+        ).catch(() => {});
+        fetch(
+          `https://www.facebook.com/tr?id=987654321&ev=Lead&eid=${eid}&dl=${encodeURIComponent(location.href)}`,
+          { method: 'GET', mode: 'no-cors' },
+        ).catch(() => {});
+        log(`Lead enviado com event_id=${eid}`);
+      }
+
+      function fireAbortedMeta() {
+        const controller = new AbortController();
+        fetch('https://www.facebook.com/tr?id=987654321&ev=Lead', {
+          mode: 'no-cors',
+          signal: controller.signal,
+        }).catch(() => {});
+        controller.abort();
+        log('Meta Lead abortado (ERR_ABORTED)');
+      }
+
+      function fireConversionNoHit() {
+        window.dataLayer.push({
+          event: 'generate_lead',
+          form_name: 'broken_trigger',
+        });
+        log('Push generate_lead sem hit — aguarde 5 s para o diagnóstico');
+      }
+
+      function fireDuplicateLead() {
+        const url =
+          'https://www.google-analytics.com/g/collect?v=2&tid=G-DEMO12345&en=generate_lead&gcs=G111';
+        fetch(url, { method: 'POST', mode: 'no-cors' }).catch(() => {});
+        setTimeout(() => {
+          fetch(url, { method: 'POST', mode: 'no-cors' }).catch(() => {});
+        }, 300);
+        log('Dois hits generate_lead disparados em 300 ms');
+      }
+
+      function firePiiLeak() {
+        const leakedUrl = `${location.origin}/obrigado?email=joao.silva@empresa.com`;
+        fetch(
+          `https://www.google-analytics.com/g/collect?v=2&tid=G-DEMO12345&en=page_view&gcs=G111&dl=${encodeURIComponent(leakedUrl)}`,
+          { method: 'POST', mode: 'no-cors' },
+        ).catch(() => {});
+        log('Hit enviado com e-mail em texto claro no parâmetro dl');
+      }
+
+      function simulateLoadedNoFire() {
+        window._linkedin_data_partner_ids = ['554433'];
+        window.dispatchEvent(new Event('load'));
+        log('LinkedIn Insight global registrado sem disparos');
+      }
+    </script>
+  </body>
+</html>
