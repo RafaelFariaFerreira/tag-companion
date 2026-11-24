@@ -1,0 +1,5 @@
+# Tag Companion: tudo pode ser lido e indexado, por buscadores e por IAs.
+User-agent: *
+Allow: /
+
+Sitemap: https://rafaelfariaferreira.github.io/tag-companion/sitemap.xml

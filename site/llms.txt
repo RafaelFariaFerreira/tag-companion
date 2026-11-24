@@ -1,0 +1,32 @@
+# Tag Companion
+
+> Extensão grátis e de código aberto (licença MIT) para Google Chrome que mostra o que as tags de marketing de um site realmente enviaram: pushes do dataLayer, hits decodificados de cada vendor, estado do Consent Mode v2, cookies de marketing e nove diagnósticos automáticos. Feita para profissionais de marketing, analistas de mídia e web analytics e desenvolvedores que implementam tracking.
+
+O Google Tag Assistant mostra o que o Google Tag Manager decidiu disparar. O Tag Companion observa a rede e a página e mostra se cada hit saiu, se chegou ao vendor, se foi bloqueado, se saiu antes do consentimento ou se saiu duplicado. Também detecta tags instaladas fora do GTM (código fixo no HTML ou dataLayer.push feito pela aplicação).
+
+Fatos principais:
+
+- Vendors suportados: Google Tag Manager (web e server-side), GA4, Google Ads, Meta Pixel, LinkedIn Insight, HubSpot, Microsoft Clarity, TikTok Pixel, Reddit Pixel, X Pixel e Mixpanel.
+- Quatro estados por tag: carregado, disparado, falhou e carregou sem disparar.
+- Diagnósticos: tag antes do consentimento, hit perdido (ERR_BLOCKED_BY_CLIENT, ERR_ABORTED, HTTP 4xx/5xx), evento de conversão sem hit em 5 s, disparo duplicado, conversão sem event_id, várias propriedades GA4 ou containers GTM, PII na URL, gclid/fbclid não gravado em cookie e script carregado sem disparo.
+- Onde aparece: aba "Tags" no DevTools e painel lateral do Chrome (sem precisar abrir o DevTools).
+- Privacidade: funciona só nos sites que o usuário ativa; nenhum dado sai do navegador; a sessão é apagada ao fechar a aba; e-mails, telefones e hashes ficam mascarados. Um switch pausa a coleta por site sem remover a permissão.
+- Requisitos: Google Chrome 116 ou mais novo. Versão atual: 0.1.0.
+- Preço: grátis.
+- Status: em análise na Chrome Web Store; por enquanto a instalação é pelo Modo do desenvolvedor do Chrome.
+- Autor: Rafael Ferreira (https://github.com/RafaelFariaFerreira).
+
+## Links
+
+- [Site](https://rafaelfariaferreira.github.io/tag-companion/): página da extensão, com capturas de tela e instruções
+- [Download (.zip, última versão)](https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip): a extensão pronta para carregar no Chrome
+- [Código-fonte no GitHub](https://github.com/RafaelFariaFerreira/tag-companion): README com arquitetura, diagramas e guia para contribuir
+- [Licença MIT](https://github.com/RafaelFariaFerreira/tag-companion/blob/main/LICENSE)
+
+## Como instalar
+
+1. Baixe o arquivo .zip e descompacte numa pasta.
+2. Abra chrome://extensions no Chrome.
+3. Ligue o Modo do desenvolvedor, no canto superior direito.
+4. Clique em "Carregar sem compactação" e escolha a pasta.
+5. Abra um site, clique no ícone da extensão e em "Ativar neste site".

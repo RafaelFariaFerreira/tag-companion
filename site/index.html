@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tag Companion: veja o que suas tags de marketing enviaram</title>
+<meta name="description" content="Extensão grátis do Chrome que mostra se cada tag de marketing disparou de verdade: GA4, GTM, Meta Pixel, Google Ads, consentimento e cookies. Código aberto.">
+<link rel="canonical" href="https://rafaelfariaferreira.github.io/tag-companion/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Rafael Ferreira">
+<meta name="theme-color" content="#f8f4f1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="img/icon-128.png">
+<link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Tag Companion">
+<meta property="og:title" content="Tag Companion: veja o que suas tags de marketing enviaram">
+<meta property="og:description" content="Extensão grátis do Chrome que mostra se cada tag disparou de verdade, com consentimento, cookies e diagnósticos automáticos.">
+<meta property="og:url" content="https://rafaelfariaferreira.github.io/tag-companion/">
+<meta property="og:image" content="https://rafaelfariaferreira.github.io/tag-companion/img/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tag Companion, o cão farejador que segue a trilha das suas tags">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tag Companion: veja o que suas tags de marketing enviaram">
+<meta name="twitter:description" content="Extensão grátis do Chrome que mostra se cada tag disparou de verdade.">
+<meta name="twitter:image" content="https://rafaelfariaferreira.github.io/tag-companion/img/og-cover.png">
+
+<link rel="preload" href="fonts/general-sans-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/general-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add("js")</script>
+<link rel="stylesheet" href="site.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://rafaelfariaferreira.github.io/tag-companion/#site",
+      "url": "https://rafaelfariaferreira.github.io/tag-companion/",
+      "name": "Tag Companion",
+      "inLanguage": "pt-BR",
+      "publisher": {
+        "@id": "https://github.com/RafaelFariaFerreira#person"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://rafaelfariaferreira.github.io/tag-companion/#page",
+      "url": "https://rafaelfariaferreira.github.io/tag-companion/",
+      "name": "Tag Companion: veja o que suas tags de marketing enviaram",
+      "isPartOf": {
+        "@id": "https://rafaelfariaferreira.github.io/tag-companion/#site"
+      },
+      "about": {
+        "@id": "https://rafaelfariaferreira.github.io/tag-companion/#app"
+      },
+      "inLanguage": "pt-BR",
+      "dateModified": "2026-11-23",
+      "primaryImageOfPage": "https://rafaelfariaferreira.github.io/tag-companion/img/og-cover.png"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://rafaelfariaferreira.github.io/tag-companion/#app",
+      "name": "Tag Companion",
+      "description": "Extensão do Chrome que mostra o que as tags de marketing realmente enviaram: pushes do dataLayer, hits decodificados de GA4, GTM, Google Ads, Meta Pixel e outros, estado do Consent Mode v2, cookies de marketing e nove diagnósticos automáticos.",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Browser extension",
+      "operatingSystem": "Chrome",
+      "softwareRequirements": "Google Chrome 116 ou mais novo",
+      "softwareVersion": "0.1.0",
+      "dateModified": "2026-11-23",
+      "inLanguage": "pt-BR",
+      "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      },
+      "downloadUrl": "https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip",
+      "installUrl": "https://rafaelfariaferreira.github.io/tag-companion/#instalar",
+      "url": "https://rafaelfariaferreira.github.io/tag-companion/",
+      "image": "https://rafaelfariaferreira.github.io/tag-companion/img/og-cover.png",
+      "screenshot": [
+        "https://rafaelfariaferreira.github.io/tag-companion/img/shot-1-1280.webp",
+        "https://rafaelfariaferreira.github.io/tag-companion/img/shot-2-1280.webp",
+        "https://rafaelfariaferreira.github.io/tag-companion/img/shot-3-1280.webp",
+        "https://rafaelfariaferreira.github.io/tag-companion/img/shot-4-1280.webp",
+        "https://rafaelfariaferreira.github.io/tag-companion/img/shot-5-1280.webp"
+      ],
+      "featureList": [
+        "Hits decodificados por vendor: GA4, GTM e sGTM, Google Ads, Meta Pixel, LinkedIn Insight, HubSpot, Microsoft Clarity, TikTok, Reddit, X e Mixpanel",
+        "Separa script carregado de hit disparado",
+        "Consent Mode v2: gcs e gcd decodificados",
+        "Cookies de marketing criados antes do consentimento",
+        "Nove diagnósticos automáticos",
+        "Detecta tags fora do GTM",
+        "Painel no DevTools e no painel lateral do Chrome",
+        "Dados só no navegador, PII mascarada"
+      ],
+      "author": {
+        "@id": "https://github.com/RafaelFariaFerreira#person"
+      },
+      "isBasedOn": {
+        "@id": "https://github.com/RafaelFariaFerreira/tag-companion#code"
+      }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://github.com/RafaelFariaFerreira/tag-companion#code",
+      "name": "Tag Companion (código-fonte)",
+      "codeRepository": "https://github.com/RafaelFariaFerreira/tag-companion",
+      "programmingLanguage": "TypeScript",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@id": "https://github.com/RafaelFariaFerreira#person"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://github.com/RafaelFariaFerreira#person",
+      "name": "Rafael Ferreira",
+      "url": "https://github.com/RafaelFariaFerreira"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "É grátis?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sim. E o código é aberto, licença MIT."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Meus dados vão pra algum lugar?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Não. Tudo fica no seu navegador e some quando você fecha a aba."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Funciona com quais ferramentas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "GTM, sGTM, GA4, Google Ads, Meta Pixel, LinkedIn, HubSpot, Clarity, TikTok, Reddit, X e Mixpanel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Por que não está na Chrome Web Store?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Está em análise no Google. Até lá, instale como abaixo."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<header class="masthead">
+  <div class="container masthead__row">
+    <a class="wordmark" href="#main" aria-label="Tag Companion, início">
+      <img src="img/symbol.png" width="240" height="142" alt="">
+      <span>Tag Companion</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="desk">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <h1 id="hero-title">Veja o que suas tags realmente enviaram.</h1>
+        <p class="lead">Extensão grátis do Chrome que mostra se cada tag disparou de verdade.</p>
+        <div class="actions">
+          <a class="btn btn--ink" href="https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Baixar grátis</a>
+          <a class="btn btn--card" href="https://github.com/RafaelFariaFerreira/tag-companion">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Ver no GitHub
+          </a>
+        </div>
+        <p class="note">Para Chrome.</p>
+      </div>
+      <div class="gallery" data-gallery role="region" aria-label="Capturas de tela do Tag Companion">
+        <figure class="sheet gallery__main">
+          <img id="gallery-main" src="img/cover-1280.webp" srcset="img/cover-640.webp 640w, img/cover-1280.webp 1280w" sizes="(min-width: 60rem) 56vw, 100vw" width="1280" height="800" fetchpriority="high" alt="Capa do Tag Companion: o cão farejador segue a trilha das tags e os quatro estados de uma tag.">
+        </figure>
+        <ul class="gallery__thumbs" aria-label="Escolher captura">
+        <li><a href="img/cover-1280.webp" data-main="img/cover" data-alt="Capa do Tag Companion: o cão farejador segue a trilha das tags e os quatro estados de uma tag." aria-current="true"><img src="img/cover-240.webp" width="240" height="150" loading="eager" alt="Capa"></a></li>
+        <li><a href="img/shot-1-1280.webp" data-main="img/shot-1" data-alt="Por vendor: carregou ou disparou? Cada ferramenta com os hits que enviou."><img src="img/shot-1-240.webp" width="240" height="150" loading="lazy" alt="Por vendor"></a></li>
+        <li><a href="img/shot-2-1280.webp" data-main="img/shot-2" data-alt="Inspetor: cada hit decodificado, parâmetro por parâmetro."><img src="img/shot-2-240.webp" width="240" height="150" loading="lazy" alt="Inspetor"></a></li>
+        <li><a href="img/shot-3-1280.webp" data-main="img/shot-3" data-alt="Diagnósticos: nove regras que acham o problema por você."><img src="img/shot-3-240.webp" width="240" height="150" loading="lazy" alt="Diagnósticos"></a></li>
+        <li><a href="img/shot-4-1280.webp" data-main="img/shot-4" data-alt="Consent Mode v2 decodificado, com o histórico de mudanças e os cookies."><img src="img/shot-4-240.webp" width="240" height="150" loading="lazy" alt="Consentimento"></a></li>
+        <li><a href="img/shot-5-1280.webp" data-main="img/shot-5" data-alt="No DevTools ou no painel lateral, ao lado da página."><img src="img/shot-5-240.webp" width="240" height="150" loading="lazy" alt="Painel lateral"></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <section class="stack" aria-labelledby="mkt-title">
+    <div class="container stack__grid">
+      <div class="stack__pane">
+        <h2 id="mkt-title">Para quem é de marketing</h2>
+        <p class="lead">Descubra se a campanha está medindo certo. Sem pedir ajuda pro dev.</p>
+      </div>
+      <div class="stack__shots">
+        <figure class="sheet">
+          <img src="img/diagnostics-1500.webp" srcset="img/diagnostics-900.webp 900w, img/diagnostics-1500.webp 1500w" sizes="(min-width: 60rem) 58vw, 100vw" width="1500" height="950" loading="lazy" alt="Aba Diagnósticos com alertas de cookie criado antes do consentimento e hit perdido.">
+          <figcaption><strong>Os problemas aparecem sozinhos.</strong> Pixel antes do consentimento, hit bloqueado, conversão duplicada.</figcaption>
+        </figure>
+        <figure class="sheet">
+          <img src="img/consent-1500.webp" srcset="img/consent-900.webp 900w, img/consent-1500.webp 1500w" sizes="(min-width: 60rem) 58vw, 100vw" width="1500" height="950" loading="lazy" alt="Aba Consentimento e cookies com o estado do Consent Mode v2 e a tabela de cookies de marketing.">
+          <figcaption><strong>Consentimento sem mistério.</strong> Veja se o cookie nasceu antes do sim.</figcaption>
+        </figure>
+        <figure class="sheet sheet--narrow">
+          <img src="img/side-800.webp" srcset="img/side-400.webp 400w, img/side-800.webp 800w" sizes="(min-width: 60rem) 400px, 80vw" width="800" height="1520" loading="lazy" alt="O painel lateral do Chrome aberto ao lado do site, com a lista de vendors.">
+          <figcaption><strong>Sem abrir o DevTools.</strong> Clique no ícone e o painel abre do lado do site.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="answers" aria-labelledby="answers-title">
+    <div class="container">
+      <h2 id="answers-title">As perguntas que ele responde</h2>
+      <table class="answers__table">
+        <thead><tr><th scope="col">Você quer saber</th><th scope="col">Onde ver</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">O pixel disparou?</th><td>Por vendor mostra cada hit e a resposta do servidor.</td></tr>
+          <tr><th scope="row">O ad blocker barrou?</th><td>O hit aparece com X e o erro, como ERR_BLOCKED_BY_CLIENT.</td></tr>
+          <tr><th scope="row">Saiu antes do consentimento?</th><td>Um diagnóstico avisa e aponta a tag ou o cookie.</td></tr>
+          <tr><th scope="row">Saiu duas vezes?</th><td>Um diagnóstico avisa quando o mesmo evento sai duas vezes.</td></tr>
+          <tr><th scope="row">Tem tag fora do GTM?</th><td>Cada hit diz de onde veio: GTM, sGTM ou fixo na página.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="stack stack--dev" aria-labelledby="dev-title">
+    <div class="container stack__grid">
+      <div class="stack__pane">
+        <h2 id="dev-title">Para quem é dev</h2>
+        <p class="lead">Cada hit decodificado, ligado ao push do dataLayer que o gerou. Pega até tag fixa no HTML.</p>
+      </div>
+      <div class="stack__shots">
+        <figure class="sheet">
+          <img src="img/inspector-1500.webp" srcset="img/inspector-900.webp 900w, img/inspector-1500.webp 1500w" sizes="(min-width: 60rem) 62vw, 100vw" width="1500" height="950" loading="lazy" alt="Inspetor de um hit purchase do GA4 com parâmetros decodificados e a correlação com o push do dataLayer.">
+          <figcaption><strong>Parâmetro por parâmetro.</strong> Nomes legíveis, corpo POST completo e a URL crua.</figcaption>
+        </figure>
+        <figure class="sheet">
+          <img src="img/timeline-1500.webp" srcset="img/timeline-900.webp 900w, img/timeline-1500.webp 1500w" sizes="(min-width: 60rem) 62vw, 100vw" width="1500" height="913" loading="lazy" alt="Linha do tempo com pushes do dataLayer, hits, scripts, consentimento e cookies, o mais recente no topo.">
+          <figcaption><strong>Tudo em ordem.</strong> dataLayer, hits, scripts e cookies, o mais novo em cima.</figcaption>
+        </figure>
+        <figure class="sheet">
+          <img src="img/tag-states.png" width="1920" height="1200" loading="lazy" alt="Diagrama dos quatro estados de uma tag: carregado, disparado, falhou e carregou sem disparar.">
+          <figcaption><strong>Quatro estados, um olhar.</strong> Carregado, disparado, falhou ou carregou sem disparar.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-title">
+    <div class="container faq__grid">
+      <h2 id="faq-title">Dúvidas rápidas</h2>
+      <dl class="faq__rows">
+        <div><dt>É grátis?</dt><dd>Sim. E o código é aberto, licença MIT.</dd></div>
+        <div><dt>Meus dados vão pra algum lugar?</dt><dd>Não. Tudo fica no seu navegador e some quando você fecha a aba.</dd></div>
+        <div><dt>Funciona com quais ferramentas?</dt><dd>GTM, sGTM, GA4, Google Ads, Meta Pixel, LinkedIn, HubSpot, Clarity, TikTok, Reddit, X e Mixpanel.</dd></div>
+        <div><dt>Por que não está na Chrome Web Store?</dt><dd>Está em análise no Google. Até lá, instale como abaixo.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="install desk" id="instalar" aria-labelledby="install-title">
+    <div class="container">
+      <div class="install__head">
+        <h2 id="install-title">Instale em quatro passos</h2>
+        <a class="btn btn--ink" href="https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Baixar o .zip</a>
+      </div>
+      <ol class="steps">
+        <li><div class="steps__fig"><svg class="steps__art" viewBox="0 0 256 160" aria-hidden="true" focusable="false">
+  <rect class="ill__panel" x="0.5" y="0.5" width="255" height="159" rx="8"/>
+  <path class="ill__file" d="M34 36 H66 L84 54 V96 A4 4 0 0 1 80 100 H38 A4 4 0 0 1 34 96 V40 A4 4 0 0 1 38 36 Z"/>
+  <path class="ill__fold" d="M66 36 V50 A4 4 0 0 0 70 54 H84 Z"/>
+  <g class="ill__zip"><rect x="55" y="58" width="6" height="5"/><rect x="59" y="63" width="6" height="5"/><rect x="55" y="68" width="6" height="5"/><rect x="59" y="73" width="6" height="5"/></g>
+  <text class="ill__label" x="58" y="120" text-anchor="middle">tag-companion.zip</text>
+  <path class="ill__arrow" d="M100 74 H134 M127 67 L134 74 L127 81"/>
+  <path class="ill__folder" d="M154 56 H176 L182 63 H210 A4 4 0 0 1 214 67 V97 A4 4 0 0 1 210 101 H154 A4 4 0 0 1 150 97 V60 A4 4 0 0 1 154 56 Z"/>
+  <text class="ill__label" x="182" y="120" text-anchor="middle">tag-companion</text>
+</svg></div><h3>Baixe e descompacte</h3><p>Abra o .zip e coloque a pasta num lugar fixo.</p></li>
+        <li><div class="steps__fig"><svg class="steps__art" viewBox="0 0 256 160" aria-hidden="true" focusable="false">
+  <rect class="ill__panel" x="0.5" y="0.5" width="255" height="159" rx="8"/>
+  <rect class="ill__field" x="14" y="22" width="228" height="34" rx="17"/>
+  <circle class="ill__dot" cx="33" cy="39" r="5.5"/>
+  <text class="ill__mono" x="48" y="43.5">chrome://extensions</text>
+  <rect class="ill__caret" x="187" y="31" width="1.8" height="16"/>
+  <rect class="ill__hl" x="10" y="18" width="236" height="42" rx="21"/>
+  <rect class="ill__list" x="14" y="66" width="228" height="76" rx="8"/>
+  <rect class="ill__row" x="20" y="72" width="216" height="28" rx="6"/>
+  <text class="ill__mono" x="32" y="90">chrome://extensions</text>
+  <rect class="ill__key" x="190" y="77" width="38" height="18" rx="4"/>
+  <text class="ill__keytext" x="209" y="90" text-anchor="middle">Enter</text>
+  <text class="ill__mute" x="32" y="124">chrome://settings</text>
+</svg></div><h3>Abra as extensões</h3><p>Digite <code data-copy="chrome://extensions">chrome://extensions</code> na barra do Chrome.</p></li>
+        <li><div class="steps__fig"><svg class="steps__art" viewBox="0 0 256 160" aria-hidden="true" focusable="false">
+  <rect class="ill__panel" x="0.5" y="0.5" width="255" height="159" rx="8"/>
+  <text class="ill__title" x="18" y="30">Extensões</text>
+  <line class="ill__line" x1="0" y1="42" x2="256" y2="42"/>
+  <text class="ill__label" x="18" y="65">Modo do desenvolvedor</text>
+  <rect class="ill__track" x="198" y="54" width="36" height="20" rx="10"/>
+  <circle class="ill__thumb" cx="224" cy="64" r="7.5"/>
+  <rect class="ill__hl" x="192" y="48" width="48" height="32" rx="16"/>
+  <rect class="ill__btn" x="14" y="92" width="136" height="22" rx="11"/>
+  <text class="ill__btntext" x="82" y="106.5" text-anchor="middle">Carregar sem compactação</text>
+  <rect class="ill__btn" x="158" y="92" width="76" height="22" rx="11"/>
+  <text class="ill__btntext" x="196" y="106.5" text-anchor="middle">Empacotar</text>
+  <rect class="ill__ghost" x="14" y="126" width="228" height="22" rx="6"/>
+</svg></div><h3>Ligue o Modo do desenvolvedor</h3><p>É a chave no canto de cima, à direita.</p></li>
+        <li><div class="steps__fig"><svg class="steps__art" viewBox="0 0 256 160" aria-hidden="true" focusable="false">
+  <rect class="ill__panel" x="0.5" y="0.5" width="255" height="159" rx="8"/>
+  <rect class="ill__list" x="14" y="12" width="228" height="136" rx="8"/>
+  <text class="ill__title ill__title--sm" x="26" y="33">Escolha a pasta</text>
+  <line class="ill__line" x1="14" y1="42" x2="242" y2="42"/>
+  <g transform="translate(26 51)"><path class="ill__folder ill__folder--sm" d="M1.5 0 H6 L8 2.5 H16 A1.5 1.5 0 0 1 17.5 4 V12 A1.5 1.5 0 0 1 16 13.5 H1.5 A1.5 1.5 0 0 1 0 12 V1.5 A1.5 1.5 0 0 1 1.5 0 Z"/></g>
+  <text class="ill__mute" x="52" y="63">Downloads</text>
+  <rect class="ill__row" x="20" y="70" width="216" height="24" rx="6"/>
+  <g transform="translate(26 75)"><path class="ill__folder" d="M1.5 0 H6 L8 2.5 H16 A1.5 1.5 0 0 1 17.5 4 V12 A1.5 1.5 0 0 1 16 13.5 H1.5 A1.5 1.5 0 0 1 0 12 V1.5 A1.5 1.5 0 0 1 1.5 0 Z"/></g>
+  <text class="ill__label" x="52" y="86">tag-companion</text>
+  <rect class="ill__hl" x="18" y="68" width="220" height="28" rx="8"/>
+  <g transform="translate(26 103)"><path class="ill__folder ill__folder--sm" d="M1.5 0 H6 L8 2.5 H16 A1.5 1.5 0 0 1 17.5 4 V12 A1.5 1.5 0 0 1 16 13.5 H1.5 A1.5 1.5 0 0 1 0 12 V1.5 A1.5 1.5 0 0 1 1.5 0 Z"/></g>
+  <text class="ill__mute" x="52" y="115">Documentos</text>
+  <rect class="ill__btn" x="108" y="124" width="58" height="18" rx="9"/>
+  <text class="ill__btntext" x="137" y="136.5" text-anchor="middle">Cancelar</text>
+  <rect class="ill__btn ill__btn--primary" x="172" y="124" width="62" height="18" rx="9"/>
+  <text class="ill__btntext ill__btntext--primary" x="203" y="136.5" text-anchor="middle">Selecionar</text>
+</svg></div><h3>Carregue a pasta</h3><p>Clique em Carregar sem compactação e escolha a pasta.</p></li>
+      </ol>
+      <p class="install__after">Depois, abra um site, clique no cão e em <strong>Ativar neste site</strong>.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="letter">
+  <div class="container letter__body">
+    <div class="letter__text">
+      <p class="letter__sign">Feito por <a href="https://github.com/RafaelFariaFerreira">Rafael Ferreira</a>, para quem passa o dia caçando tag quebrada.</p>
+      <p class="letter__meta"><a href="https://github.com/RafaelFariaFerreira/tag-companion">Código no GitHub</a><a class="tag" href="https://github.com/RafaelFariaFerreira/tag-companion/blob/main/LICENSE">Licença MIT</a><time datetime="2026-11">Novembro de 2026</time></p>
+    </div>
+    <figure class="pup" data-loop>
+      <svg class="pup__art" viewBox="0 0 340 190" width="300" height="168" aria-hidden="true" focusable="false">
+<ellipse class="pup__shadow" cx="150" cy="177" rx="112" ry="6"/>
+<g class="pup__roll">
+<g class="pup__tail" style="transform-origin:70px 154px"><path class="pup__fur" d="M72.8 144.0 L71.6 144.0 L70.0 144.1 L68.3 144.1 L66.5 144.2 L64.6 144.2 L62.8 144.3 L60.9 144.2 L59.2 144.2 L57.8 144.1 L56.5 143.9 L55.1 143.6 L53.6 143.1 L52.0 142.7 L50.5 142.1 L49.0 141.6 L47.6 140.9 L46.3 140.3 L45.1 139.6 L44.0 138.9 L43.0 138.1 L42.1 137.3 L41.2 136.4 L40.3 135.3 L39.4 134.1 L38.6 132.8 L37.8 131.4 L37.1 130.0 L36.4 128.6 L35.9 127.2 L35.4 125.9 L35.0 124.6 L34.7 123.2 L34.5 121.7 L34.4 120.2 L34.3 118.6 L34.3 117.0 L34.4 115.5 L34.5 113.9 L34.7 112.5 L34.8 111.1 L35.1 109.9 L35.4 108.6 L35.8 107.4 L36.3 106.1 L36.9 104.9 L37.4 103.7 L38.1 102.6 L38.7 101.5 L39.3 100.5 L39.8 99.7 L40.3 99.0 L40.8 98.4 L41.4 97.9 L42.1 97.4 L42.7 97.0 L43.4 96.6 L44.0 96.3 L44.6 95.9 L45.2 95.6 L45.7 95.3 L46.0 95.1 L46.3 94.7 L46.5 94.3 L46.5 93.8 L46.3 93.3 L46.1 93.0 L45.7 92.7 L45.3 92.5 L44.8 92.5 L44.3 92.7 L44.0 92.8 L43.5 92.9 L42.8 93.1 L42.0 93.3 L41.2 93.5 L40.2 93.8 L39.2 94.3 L38.2 94.8 L37.1 95.5 L36.2 96.3 L35.2 97.2 L34.3 98.1 L33.4 99.1 L32.4 100.3 L31.4 101.5 L30.4 102.8 L29.5 104.2 L28.6 105.7 L27.8 107.3 L27.2 108.9 L26.6 110.6 L26.1 112.3 L25.6 114.1 L25.2 115.9 L24.8 117.9 L24.6 119.9 L24.4 121.9 L24.3 124.0 L24.4 126.1 L24.6 128.1 L24.9 130.1 L25.4 132.1 L25.9 134.2 L26.6 136.2 L27.3 138.2 L28.2 140.2 L29.2 142.2 L30.3 144.2 L31.6 146.0 L33.0 147.9 L34.5 149.6 L36.2 151.1 L38.0 152.6 L39.8 154.0 L41.7 155.2 L43.6 156.3 L45.6 157.4 L47.5 158.4 L49.5 159.3 L51.5 160.1 L53.8 160.9 L56.3 161.6 L58.7 162.1 L61.1 162.5 L63.4 162.9 L65.5 163.2 L67.4 163.4 L69.1 163.6 L70.3 163.8 L71.2 164.0 L74.3 163.7 L77.2 162.5 L79.6 160.5 L81.2 157.8 L82.0 154.8 L81.7 151.7 L80.5 148.8 L78.5 146.4 L75.8 144.8 Z"/></g>
+<g class="pup__leg pup__leg--a" style="transform-origin:124px 126px"><path class="pup__far" d="M139.9 129.4 L139.8 128.0 L139.6 126.2 L139.3 124.0 L139.1 121.6 L138.8 119.1 L138.5 116.5 L138.2 113.9 L137.9 111.4 L137.7 109.2 L137.4 107.2 L137.2 105.4 L137.0 103.7 L136.8 102.2 L136.6 100.8 L136.3 99.6 L136.1 98.4 L136.0 97.3 L135.8 96.2 L135.7 95.2 L135.7 94.1 L135.7 93.1 L135.8 92.0 L136.0 90.9 L136.2 89.8 L136.5 88.6 L136.9 87.3 L137.3 86.1 L137.7 84.8 L138.1 83.6 L138.6 82.3 L139.0 81.0 L139.3 79.7 L139.7 78.6 L140.0 77.5 L140.3 76.5 L140.6 75.6 L141.0 74.9 L141.3 74.2 L141.6 73.8 L142.0 73.4 L142.4 72.9 L143.0 72.6 L143.6 72.3 L144.2 72.0 L144.8 71.8 L145.4 71.7 L146.0 71.6 L146.4 71.5 L146.9 71.4 L147.1 71.4 L147.1 71.3 L147.3 71.1 L147.8 70.9 L148.5 70.6 L149.3 70.2 L150.1 69.9 L151.0 69.6 L151.9 69.4 L152.7 69.2 L153.4 69.0 L155.2 68.6 L156.8 67.6 L158.1 66.2 L158.8 64.5 L159.0 62.6 L158.6 60.8 L157.6 59.2 L156.2 57.9 L154.5 57.2 L152.6 57.0 L152.2 56.9 L151.6 56.7 L150.8 56.5 L149.8 56.2 L148.6 56.0 L147.3 55.8 L145.8 55.7 L144.3 55.8 L142.6 56.1 L140.9 56.6 L139.5 57.3 L138.4 58.1 L137.4 59.0 L136.4 60.0 L135.5 61.0 L134.8 62.1 L134.0 63.2 L133.3 64.4 L132.7 65.5 L132.0 66.6 L131.3 67.9 L130.8 69.2 L130.3 70.4 L129.8 71.6 L129.4 72.8 L129.1 73.9 L128.7 74.9 L128.3 75.9 L127.9 76.8 L127.4 77.7 L126.9 78.7 L126.3 79.6 L125.7 80.7 L125.0 81.8 L124.2 82.9 L123.4 84.2 L122.6 85.5 L121.8 86.9 L121.0 88.3 L120.3 89.9 L119.6 91.4 L119.0 92.9 L118.4 94.3 L117.8 95.8 L117.3 97.2 L116.8 98.6 L116.2 100.1 L115.7 101.6 L115.1 103.1 L114.6 104.8 L113.9 106.8 L113.2 109.1 L112.5 111.5 L111.7 114.1 L111.0 116.7 L110.2 119.2 L109.6 121.5 L109.0 123.6 L108.5 125.3 L108.1 126.6 L108.4 131.6 L110.3 136.2 L113.5 140.1 L117.7 142.7 L122.6 143.9 L127.6 143.6 L132.2 141.7 L136.1 138.5 L138.7 134.3 Z"/></g>
+<g class="pup__leg pup__leg--b" style="transform-origin:196px 114px"><path class="pup__far" d="M207.8 118.2 L207.7 117.2 L207.6 115.9 L207.5 114.3 L207.4 112.5 L207.3 110.6 L207.2 108.7 L207.1 106.7 L207.0 104.8 L206.9 103.0 L206.9 101.4 L206.8 99.8 L206.8 98.3 L206.8 96.9 L206.7 95.6 L206.7 94.4 L206.6 93.3 L206.6 92.3 L206.6 91.3 L206.7 90.5 L206.8 89.7 L206.9 88.9 L207.0 88.0 L207.2 87.3 L207.4 86.6 L207.6 86.0 L207.9 85.4 L208.1 84.9 L208.4 84.4 L208.8 84.0 L209.2 83.5 L209.7 83.2 L210.3 82.9 L210.9 82.6 L211.5 82.4 L212.1 82.3 L212.7 82.2 L213.2 82.2 L213.6 82.2 L214.0 82.2 L214.1 82.2 L214.2 82.1 L214.4 82.0 L215.0 81.8 L215.7 81.5 L216.6 81.3 L217.5 81.1 L218.4 80.9 L219.2 80.7 L220.1 80.6 L220.8 80.5 L222.5 80.3 L224.0 79.6 L225.3 78.4 L226.2 76.9 L226.5 75.2 L226.3 73.5 L225.6 72.0 L224.4 70.7 L222.9 69.8 L221.2 69.5 L220.8 69.4 L220.2 69.1 L219.4 68.8 L218.5 68.4 L217.3 68.1 L216.1 67.8 L214.7 67.5 L213.2 67.4 L211.6 67.5 L209.9 67.8 L208.4 68.4 L207.2 69.1 L206.1 69.9 L205.2 70.7 L204.3 71.7 L203.5 72.7 L202.8 73.6 L202.1 74.6 L201.4 75.5 L200.8 76.5 L200.1 77.4 L199.5 78.3 L198.9 79.2 L198.3 80.2 L197.8 81.1 L197.2 82.1 L196.7 83.1 L196.2 84.1 L195.7 85.2 L195.2 86.3 L194.8 87.6 L194.3 88.8 L194.0 90.1 L193.6 91.3 L193.2 92.6 L192.9 93.8 L192.5 95.0 L192.1 96.2 L191.6 97.4 L191.1 98.6 L190.5 100.0 L189.8 101.6 L189.1 103.3 L188.2 105.1 L187.4 106.9 L186.6 108.6 L185.9 110.2 L185.2 111.6 L184.6 112.8 L184.2 113.8 L184.1 117.5 L185.2 121.1 L187.3 124.2 L190.2 126.5 L193.8 127.8 L197.5 127.9 L201.1 126.8 L204.2 124.7 L206.5 121.8 Z"/></g>
+<path class="pup__fur" d="M86 172 C66 172 54 156 58 138 C62 120 80 110 102 112 C120 114 138 122 154 120 C170 118 182 106 200 108 C218 110 230 128 226 150 C222 166 208 174 190 174 C160 176 116 174 86 172 Z"/>
+<g class="pup__leg pup__leg--c" style="transform-origin:100px 128px"><path class="pup__fur" d="M120.9 128.1 L120.4 126.9 L119.8 125.2 L119.0 123.1 L118.1 120.9 L117.1 118.4 L116.2 115.9 L115.2 113.3 L114.2 110.9 L113.3 108.6 L112.4 106.4 L111.5 104.3 L110.6 102.2 L109.7 100.5 L108.8 98.9 L108.0 97.5 L107.2 96.3 L106.5 95.2 L105.9 94.3 L105.4 93.4 L105.0 92.6 L104.7 91.7 L104.5 90.7 L104.5 89.6 L104.5 88.3 L104.7 87.0 L104.9 85.7 L105.2 84.3 L105.5 82.9 L105.9 81.5 L106.2 80.0 L106.5 78.6 L106.7 77.3 L107.0 76.1 L107.2 75.0 L107.5 73.9 L107.7 72.9 L108.0 72.1 L108.4 71.3 L108.7 70.7 L109.1 70.1 L109.7 69.5 L110.3 69.0 L111.0 68.5 L111.7 68.2 L112.4 68.0 L113.0 67.8 L113.6 67.8 L114.1 67.7 L114.4 67.7 L114.5 67.8 L114.4 67.8 L114.6 67.6 L115.1 67.3 L115.8 67.0 L116.7 66.7 L117.7 66.4 L118.6 66.1 L119.6 65.9 L120.6 65.7 L121.3 65.5 L123.3 65.1 L125.1 64.0 L126.5 62.5 L127.3 60.7 L127.5 58.7 L127.1 56.7 L126.0 54.9 L124.5 53.5 L122.7 52.7 L120.7 52.5 L120.2 52.4 L119.6 52.2 L118.6 51.9 L117.5 51.7 L116.2 51.4 L114.7 51.2 L113.1 51.1 L111.4 51.2 L109.5 51.5 L107.5 52.2 L105.9 53.2 L104.7 54.2 L103.6 55.3 L102.6 56.5 L101.8 57.8 L101.2 59.0 L100.5 60.3 L100.0 61.5 L99.4 62.7 L98.9 63.9 L98.2 65.2 L97.7 66.5 L97.1 67.7 L96.6 69.0 L96.2 70.2 L95.7 71.4 L95.3 72.6 L94.8 73.8 L94.3 74.9 L93.8 76.0 L93.3 77.1 L92.7 78.2 L92.0 79.5 L91.3 80.9 L90.6 82.3 L89.8 83.9 L89.0 85.6 L88.3 87.4 L87.6 89.3 L87.0 91.4 L86.5 93.5 L86.1 95.6 L85.8 97.7 L85.6 99.6 L85.3 101.5 L85.0 103.3 L84.7 104.9 L84.4 106.5 L84.0 108.0 L83.6 109.6 L83.1 111.5 L82.7 113.9 L82.2 116.4 L81.6 119.0 L81.1 121.6 L80.6 124.1 L80.1 126.5 L79.7 128.7 L79.4 130.5 L79.1 131.9 L80.7 138.2 L84.2 143.8 L89.2 148.0 L95.3 150.5 L101.9 150.9 L108.2 149.3 L113.8 145.8 L118.0 140.8 L120.5 134.7 Z"/></g>
+<g class="pup__leg pup__leg--d" style="transform-origin:178px 118px"><path class="pup__fur" d="M191.9 118.4 L191.5 117.3 L191.0 115.8 L190.3 114.2 L189.6 112.3 L188.9 110.3 L188.1 108.3 L187.3 106.4 L186.6 104.5 L186.0 102.8 L185.5 101.3 L185.0 100.0 L184.6 98.7 L184.2 97.5 L183.8 96.4 L183.5 95.4 L183.2 94.5 L182.9 93.6 L182.7 92.7 L182.5 91.8 L182.4 90.9 L182.4 89.9 L182.4 88.9 L182.4 88.0 L182.4 87.1 L182.5 86.2 L182.7 85.4 L182.9 84.7 L183.1 84.0 L183.4 83.4 L183.8 82.8 L184.2 82.2 L184.8 81.7 L185.5 81.2 L186.1 80.8 L186.8 80.4 L187.5 80.2 L188.1 80.0 L188.6 79.9 L188.9 79.9 L188.9 79.9 L188.6 80.0 L188.7 79.8 L189.0 79.6 L189.6 79.4 L190.4 79.2 L191.3 79.0 L192.1 78.8 L193.0 78.7 L194.0 78.6 L194.7 78.5 L196.4 78.3 L198.0 77.6 L199.3 76.5 L200.1 75.0 L200.5 73.3 L200.3 71.6 L199.6 70.0 L198.5 68.7 L197.0 67.9 L195.3 67.5 L195.0 67.4 L194.4 67.1 L193.7 66.7 L192.7 66.4 L191.5 66.0 L190.1 65.6 L188.6 65.4 L187.0 65.3 L185.1 65.5 L183.1 66.1 L181.5 66.9 L180.3 67.9 L179.2 69.0 L178.2 70.1 L177.4 71.3 L176.7 72.5 L176.0 73.7 L175.4 74.9 L174.8 76.1 L174.2 77.2 L173.7 78.4 L173.1 79.6 L172.6 80.8 L172.1 81.9 L171.6 83.1 L171.1 84.3 L170.7 85.5 L170.3 86.7 L169.9 87.9 L169.6 89.1 L169.2 90.4 L168.8 91.7 L168.5 93.0 L168.2 94.3 L167.9 95.6 L167.6 96.9 L167.3 98.3 L167.1 99.7 L166.8 101.1 L166.5 102.7 L166.3 104.5 L166.0 106.5 L165.7 108.7 L165.4 110.9 L165.1 113.2 L164.9 115.3 L164.6 117.3 L164.4 119.1 L164.2 120.5 L164.1 121.6 L165.3 125.8 L167.7 129.5 L171.1 132.2 L175.2 133.7 L179.6 133.9 L183.8 132.7 L187.5 130.3 L190.2 126.9 L191.7 122.8 Z"/></g>
+<g class="pup__head" style="transform-origin:216px 150px">
+<g class="pup__tag" style="transform-origin:267.9px 87.3px"><g transform="translate(267.9 87.3) rotate(-74) scale(1.25)"><path class="pup__tagbody" d="M0 0 L11 -9 L35 -9 Q39 -9 39 -5 L39 5 Q39 9 35 9 L11 9 Z"/><circle class="pup__hole" cx="27" cy="0" r="3.4"/></g></g>
+<g transform="translate(214 132) rotate(-38) scale(1 -1)">
+<path class="pup__fur" d="M-8 -22 C-6 -46 22 -56 40 -42 C47 -37 52 -31 62 -27 L86 -20 C97 -17 101 -6 94 2 C86 10 68 12 54 10 C40 8 28 14 16 22 C6 28 -10 22 -13 8 C-14 -2 -11 -12 -8 -22 Z"/>
+<path class="pup__collar" d="M4 -30 Q-3 -2 6 27"/>
+<g class="pup__eye-open"><ellipse class="pup__ink" cx="45" cy="-27" rx="6.4" ry="7.4"/><circle class="pup__glint" cx="47.2" cy="-24" r="2.1"/></g><path class="pup__ink pup__eye-shut" d="M36 -30 Q45 -21 54 -30 Q45 -25 36 -30 Z"/>
+</g>
+<circle class="pup__nose" cx="290.8" cy="80.9" r="7"/>
+<g class="pup__ear" style="transform-origin:244px 150px"><path class="pup__dark" d="M246 144 C252 152 248 162 238 168 C226 175 208 179 198 176 C190 173 192 165 202 160 C214 154 226 150 232 145 C237 141 243 140 246 144 Z"/></g>
+</g>
+</g></svg>
+      <figcaption class="pup__caption">Taggy adora encontrar tags
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+      </figcaption>
+    </figure>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-loop]').forEach(function (el) {
+  var s = { seen: false, hover: false, focus: false, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches };
+  function sync() { el.classList.toggle('is-running', s.seen && !s.hover && !s.focus && !s.reduced); }
+  [['pointerenter', 'hover', true], ['pointerleave', 'hover', false], ['focusin', 'focus', true], ['focusout', 'focus', false]].forEach(function (x) {
+    el.addEventListener(x[0], function () { s[x[1]] = x[2]; sync(); });
+  });
+  new IntersectionObserver(function (e) { s.seen = e[0].isIntersecting; sync(); }).observe(el);
+});
+(function () {
+  var g = document.querySelector('[data-gallery]');
+  if (!g) return;
+  var main = g.querySelector('#gallery-main');
+  g.querySelectorAll('.gallery__thumbs a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var base = a.dataset.main;
+      main.srcset = base + '-640.webp 640w, ' + base + '-1280.webp 1280w';
+      main.src = base + '-1280.webp';
+      main.alt = a.dataset.alt;
+      g.querySelectorAll('.gallery__thumbs a').forEach(function (o) { o.removeAttribute('aria-current'); });
+      a.setAttribute('aria-current', 'true');
+    });
+  });
+})();
+document.querySelectorAll('code[data-copy]').forEach(function (code) {
+  if (!navigator.clipboard) return;
+  var text = code.dataset.copy;
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'copy';
+  btn.setAttribute('aria-label', 'Copiar ' + text);
+  code.replaceWith(btn);
+  btn.appendChild(code);
+  btn.insertAdjacentHTML('beforeend', '<span class="copy__hint" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><rect x="8" y="8" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="copy__tip" role="status"></span>');
+  var tip = btn.querySelector('.copy__tip'), timer;
+  btn.addEventListener('click', function () {
+    navigator.clipboard.writeText(text).then(function () { return 'Copiado'; }, function () { return 'Não copiou'; }).then(function (msg) {
+      tip.textContent = msg;
+      btn.classList.remove('is-copied'); void btn.offsetWidth; btn.classList.add('is-copied');
+      clearTimeout(timer);
+      timer = setTimeout(function () { btn.classList.remove('is-copied'); tip.textContent = ''; }, 1600);
+    });
+  });
+});
+</script>
+</body>
+</html>

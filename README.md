@@ -10,7 +10,7 @@
 
 **O Tag Companion mostra o que os seus tags de marketing realmente enviaram.** O Tag Assistant diz o que o GTM *decidiu* disparar; o Tag Companion olha a rede e a página e mostra se o hit saiu, se chegou, se foi bloqueado, se saiu antes do consentimento ou se saiu duas vezes. Funciona até com tags que não passam pelo GTM.
 
-É grátis, roda inteiro no seu navegador e não envia nada para servidor nenhum.
+É grátis, roda inteiro no seu navegador e não envia nada para servidor nenhum. **Site:** https://rafaelfariaferreira.github.io/tag-companion/
 
 ## Instalar
 
@@ -20,7 +20,7 @@ A extensão está em análise na Chrome Web Store. Assim que for publicada, o li
 
 ### Enquanto isso, instale manualmente
 
-1. Baixe o arquivo `tag-companion-<versão>.zip` em [Releases](https://github.com/RafaelFariaFerreira/tag-companion/releases/latest) e descompacte numa pasta.
+1. Baixe o [`tag-companion.zip`](https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip) (última versão) e descompacte numa pasta.
 2. No Chrome, abra `chrome://extensions`.
 3. Ligue o **Modo do desenvolvedor**, no canto superior direito.
 4. Clique em **Carregar sem compactação** e escolha a pasta descompactada.

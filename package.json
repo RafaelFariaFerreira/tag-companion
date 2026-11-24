@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview:ui": "vite --config preview/vite.config.ts"
+    "preview:ui": "vite --config preview/vite.config.ts",
+    "release:zip": "pnpm build && mkdir -p release && rm -f release/tag-companion.zip && cd dist && zip -qr -X ../release/tag-companion.zip ."
   },
   "dependencies": {
     "lucide-react": "^0.511.0",
