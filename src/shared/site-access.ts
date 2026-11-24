@@ -6,13 +6,25 @@
 /** Storage keys of the old pause flags (v0.1.1 per-site list, v0.1.2 global flag), removed on update. */
 export const LEGACY_PAUSE_KEYS = ['pausedSites', 'extensionPaused'];
 
-/** Activated-site patterns among all granted origins: http(s) only, never the vendor hosts from the manifest. */
+/** "scheme://host" of a match pattern, lowercased; the path is dropped. */
+function schemeAndHost(pattern: string): string {
+  const m = /^([^:]+:\/\/[^/]*)/.exec(pattern);
+  return (m ? m[1] : pattern).toLowerCase();
+}
+
+/**
+ * Activated-site patterns among all granted origins: http(s) only, never the vendor hosts from the manifest.
+ *
+ * Compared by scheme + host: chrome.permissions.getAll() normalizes the paths of required patterns
+ * (`*://*.google.com/pagead/*` comes back as `*://*.google.com/*`), so an exact string match misses them,
+ * and asking to remove a required pattern makes chrome.permissions.remove reject the whole call.
+ */
 export function activatedSitePatterns(
   grantedOrigins: readonly string[],
   vendorHosts: readonly string[],
 ): string[] {
-  const vendor = new Set(vendorHosts);
-  return grantedOrigins.filter((o) => /^(https?|\*):\/\//i.test(o) && !vendor.has(o));
+  const vendor = new Set(vendorHosts.map(schemeAndHost));
+  return grantedOrigins.filter((o) => /^(https?|\*):\/\//i.test(o) && !vendor.has(schemeAndHost(o)));
 }
 
 /** Whether a page URL is covered by one of the match patterns (scheme://host/path, path ignored). */

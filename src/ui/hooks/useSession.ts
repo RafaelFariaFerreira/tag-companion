@@ -186,13 +186,20 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
       try {
         const { origins = [] } = await chrome.permissions.getAll();
         const toRevoke = activatedSitePatterns(origins, chrome.runtime.getManifest().host_permissions ?? []);
-        if (toRevoke.length > 0) await chrome.permissions.remove({ origins: toRevoke });
-        setOriginGranted(false);
+        // One by one: a single refused pattern must not keep the other sites granted.
+        for (const origin of toRevoke) {
+          await chrome.permissions.remove({ origins: [origin] }).catch((err) => {
+            console.error(`Tag Companion: não foi possível remover a permissão de ${origin}`, err);
+          });
+        }
       } catch (err) {
         console.error('Tag Companion: não foi possível remover as permissões dos sites', err);
       }
+      if (!isRestrictedPage && currentOrigin) {
+        setOriginGranted(await chrome.permissions.contains({ origins: [`${currentOrigin}/*`] }).catch(() => false));
+      }
     },
-    [isRestrictedPage, originGranted, requestOriginPermission],
+    [currentOrigin, isRestrictedPage, originGranted, requestOriginPermission],
   );
 
   const clearSession = useCallback(async () => {

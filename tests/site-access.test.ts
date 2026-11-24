@@ -9,6 +9,13 @@ describe('Site access', () => {
     ).toEqual(['https://uol.com/*']);
   });
 
+  it('drops vendor hosts even when Chrome normalizes their paths', () => {
+    const manifest = ['*://*.google.com/pagead/*', '*://*.facebook.com/tr*', '*://t.co/i/adsct*'];
+    // What chrome.permissions.getAll() actually returns for those, plus one activated site
+    const granted = ['*://*.google.com/*', '*://*.facebook.com/*', '*://t.co/*', 'https://uol.com/*'];
+    expect(activatedSitePatterns(granted, manifest)).toEqual(['https://uol.com/*']);
+  });
+
   it('covers only the activated site and its subdomains', () => {
     const granted = originsForSite('https://www.uol.com');
     expect(isUrlGranted('https://www.uol.com/noticias', granted)).toBe(true);
