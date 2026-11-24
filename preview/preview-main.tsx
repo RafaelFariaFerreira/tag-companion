@@ -9,8 +9,8 @@ const mode = (params.get('mode') as 'devtools' | 'sidepanel') ?? 'devtools';
 const empty = params.has('empty');
 const session = empty ? null : seedSession();
 const noop = { addListener() {}, removeListener() {} };
-// In-memory chrome.storage.local with change events (?paused starts the extension paused)
-const store: Record<string, unknown> = params.has('paused') ? { extensionPaused: true } : {};
+// In-memory chrome.storage.local with change events
+const store: Record<string, unknown> = {};
 const storageListeners = new Set<(c: Record<string, { oldValue?: unknown; newValue?: unknown }>, area: string) => void>();
 let granted_ = !params.has('nogrant');
 (globalThis as any).chrome = {
@@ -24,10 +24,13 @@ let granted_ = !params.has('nogrant');
     connect: () => ({ onMessage: noop, disconnect() {} }),
     sendMessage: async (m: any) => (m.type === 'GET_SESSION' ? { session } : m.type === 'CHECK_ORIGIN_PERMISSION' ? { granted: granted_ } : {}),
     onMessage: noop,
+    getManifest: () => ({ host_permissions: [] }),
   },
   permissions: {
     contains: async () => granted_,
     request: async () => { granted_ = true; return true; },
+    getAll: async () => ({ origins: granted_ ? ['https://loja.exemplo.com.br/*'] : [] }),
+    remove: async () => { granted_ = false; return true; },
     onAdded: noop,
     onRemoved: noop,
   },

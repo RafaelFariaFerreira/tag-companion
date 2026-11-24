@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RuntimeMessage, TabSession } from '@/shared/types';
 import { createTabSession, extractOrigin } from '@/core/session-store';
-import { PAUSED_KEY, originsForSite, readPaused } from '@/shared/paused-sites';
+import { activatedSitePatterns, originsForSite } from '@/shared/site-access';
 
 export interface UseSessionResult {
   tabId: number | null;
   session: TabSession | null;
   originGranted: boolean;
-  /** The whole extension is paused by the user, on every site (permissions are kept). */
-  paused: boolean;
   isRestrictedPage: boolean;
-  /** The header switch: off pauses everywhere; on resumes, or asks for this site's permission when not paused. */
+  /** The header switch: off revokes every activated site; on asks for the open site only. */
   setMonitoring: (on: boolean) => Promise<void>;
   requestOriginPermission: () => Promise<boolean>;
   clearSession: () => Promise<void>;
@@ -27,27 +25,6 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
   const [tabUrl, setTabUrl] = useState<string>('');
   const [session, setSession] = useState<TabSession | null>(null);
   const [originGranted, setOriginGranted] = useState<boolean>(false);
-  const [paused, setPaused] = useState<boolean>(false);
-
-  // The pause lives in chrome.storage.local so the service worker and every panel share it.
-  useEffect(() => {
-    if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
-    chrome.storage.local
-      .get(PAUSED_KEY)
-      .then((stored) => setPaused(readPaused(stored)))
-      .catch(() => {});
-    const onChanged = (
-      changes: Record<string, chrome.storage.StorageChange>,
-      area: string,
-    ) => {
-      if (area === 'local' && changes[PAUSED_KEY]) {
-        setPaused(changes[PAUSED_KEY].newValue === true);
-      }
-    };
-    chrome.storage.onChanged.addListener(onChanged);
-    return () => chrome.storage.onChanged.removeListener(onChanged);
-  }, []);
-
   // Resolve active tab ID in sidepanel mode and keep it updated when switching tabs
   useEffect(() => {
     if (mode === 'devtools') {
@@ -198,26 +175,24 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
     }
   }, [currentOrigin, isRestrictedPage, tabId]);
 
-  const writePaused = useCallback(async (value: boolean) => {
-    setPaused(value);
-    if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
-    await chrome.storage.local.set({ [PAUSED_KEY]: value });
-  }, []);
-
   const setMonitoring = useCallback(
     async (on: boolean) => {
-      if (!on) {
-        await writePaused(true);
+      if (typeof chrome === 'undefined' || !chrome.permissions) return;
+      if (on) {
+        if (!isRestrictedPage && !originGranted) await requestOriginPermission();
         return;
       }
-      if (paused) {
-        // Resuming turns the extension back on everywhere; a site without permission still asks for it.
-        await writePaused(false);
-        return;
+      // Off = revoke every activated site, so turning it back on asks again, one site at a time.
+      try {
+        const { origins = [] } = await chrome.permissions.getAll();
+        const toRevoke = activatedSitePatterns(origins, chrome.runtime.getManifest().host_permissions ?? []);
+        if (toRevoke.length > 0) await chrome.permissions.remove({ origins: toRevoke });
+        setOriginGranted(false);
+      } catch (err) {
+        console.error('Tag Companion: não foi possível remover as permissões dos sites', err);
       }
-      if (!isRestrictedPage && !originGranted) await requestOriginPermission();
     },
-    [isRestrictedPage, originGranted, paused, requestOriginPermission, writePaused],
+    [isRestrictedPage, originGranted, requestOriginPermission],
   );
 
   const clearSession = useCallback(async () => {
@@ -248,7 +223,6 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
     tabId,
     session,
     originGranted,
-    paused,
     isRestrictedPage,
     setMonitoring,
     requestOriginPermission,

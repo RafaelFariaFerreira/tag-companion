@@ -16,33 +16,28 @@ import {
   recordPageObserverEvent,
 } from '@/core/session-store';
 import { cookieMatchesUrl, snapshotTabCookies } from './cookie-collector';
-import { LEGACY_PAUSED_SITES_KEY, PAUSED_KEY, readPaused } from '@/shared/paused-sites';
+import { LEGACY_PAUSE_KEYS, activatedSitePatterns, isUrlGranted } from '@/shared/site-access';
 
 const sessions = new Map<number, TabSession>();
 const tabPorts = new Map<number, Set<chrome.runtime.Port>>();
 const broadcastTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-// Global pause: when on, the extension collects nothing on any site (host permissions are kept).
-let paused = false;
-const pausedReady = chrome.storage.local
-  .get(PAUSED_KEY)
-  .then((stored) => {
-    paused = readPaused(stored);
-    updatePausedBadge();
-  })
-  .catch(() => {});
+// Sites the user activated (optional host permissions). Collection happens only on these:
+// turning the switch off revokes them all, so nothing is tracked until a site is activated again.
+let activatedSites: string[] = [];
 
-// Every call site passes the page URL; the pause is global, so the URL no longer matters.
-function isPaused(_url?: string): boolean {
-  return paused;
+async function refreshActivatedSites(): Promise<string[]> {
+  const perms = await chrome.permissions.getAll().catch(() => ({ origins: [] as string[] }));
+  activatedSites = activatedSitePatterns(
+    perms.origins ?? [],
+    chrome.runtime.getManifest().host_permissions ?? [],
+  );
+  return activatedSites;
 }
+const activatedSitesReady = refreshActivatedSites();
 
-function updatePausedBadge(): void {
-  chrome.action?.setBadgeText({ text: paused ? 'OFF' : '' }).catch(() => {});
-  chrome.action?.setBadgeBackgroundColor({ color: '#6e6662' }).catch(() => {});
-  chrome.action
-    ?.setTitle({ title: paused ? 'Tag Companion — Pausado' : 'Tag Companion — Abrir painel lateral' })
-    .catch(() => {});
+function isTracked(url: string | undefined): boolean {
+  return isUrlGranted(url, activatedSites);
 }
 
 const MAIN_SCRIPT_ID = 'tag-companion-page-observer';
@@ -155,14 +150,8 @@ function decodeRequestBody(
 
 async function syncRegisteredContentScripts(): Promise<void> {
   try {
-    const perms = await chrome.permissions.getAll();
-    const staticVendorHosts = new Set(
-      chrome.runtime.getManifest().host_permissions ?? [],
-    );
-    const origins = (perms.origins ?? []).filter(
-      (o) =>
-        /^(https?|\*):\/\//i.test(o) && !staticVendorHosts.has(o),
-    );
+    await activatedSitesReady;
+    const origins = await refreshActivatedSites();
 
     const existing = await chrome.scripting.getRegisteredContentScripts({
       ids: [MAIN_SCRIPT_ID, BRIDGE_SCRIPT_ID],
@@ -172,8 +161,7 @@ async function syncRegisteredContentScripts(): Promise<void> {
       await chrome.scripting.unregisterContentScripts({ ids: existingIds });
     }
 
-    await pausedReady;
-    if (origins.length === 0 || paused) return;
+    if (origins.length === 0) return;
 
     await chrome.scripting.registerContentScripts([
       {
@@ -221,7 +209,7 @@ chrome.sidePanel
   .catch(() => {});
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.remove(LEGACY_PAUSED_SITES_KEY).catch(() => {});
+  chrome.storage.local.remove(LEGACY_PAUSE_KEYS).catch(() => {});
   syncRegisteredContentScripts();
 });
 
@@ -235,25 +223,6 @@ chrome.permissions.onAdded.addListener(() => {
 
 chrome.permissions.onRemoved.addListener(() => {
   syncRegisteredContentScripts();
-});
-
-// Pause / resume from the UI switch. Pausing unregisters the scripts everywhere;
-// resuming registers them again and starts observing open tabs right away (no reload needed).
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes[PAUSED_KEY]) return;
-  const wasPaused = paused;
-  paused = changes[PAUSED_KEY].newValue === true;
-  updatePausedBadge();
-  syncRegisteredContentScripts().then(async () => {
-    if (!wasPaused || paused) return;
-    const tabs = await chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[]);
-    for (const tab of tabs) {
-      // injectIntoTab fails silently on sites without permission; the observers guard against double install.
-      if (tab.id !== undefined && tab.url && /^https?:\/\//i.test(tab.url)) {
-        injectIntoTab(tab.id);
-      }
-    }
-  });
 });
 
 // Clean up tab session when closed (privacy requirement from PRD)
@@ -273,14 +242,14 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 // Track main-frame navigations
+// (the URL is always kept so the session knows which site the tab is on; nothing else is recorded off-site)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (isPaused(changeInfo.url ?? tab.url)) return;
   if (changeInfo.status === 'loading' && changeInfo.url && /^https?:\/\//i.test(changeInfo.url)) {
     const session = getOrCreateSession(tabId, changeInfo.url);
     const updated = recordNavigation(session, changeInfo.url, Date.now());
     sessions.set(tabId, updated);
     scheduleBroadcast(tabId);
-  } else if (changeInfo.status === 'complete' && tab.url && /^https?:\/\//i.test(tab.url)) {
+  } else if (changeInfo.status === 'complete' && tab.url && isTracked(tab.url)) {
     const session = getOrCreateSession(tabId, tab.url);
     session.pageLoadedAt = Date.now();
     snapshotTabCookies(session, tab.url).then(() => {
@@ -294,7 +263,11 @@ chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
     const existing = sessions.get(details.tabId);
-    if (isPaused(existing?.currentUrl || (details as { documentUrl?: string }).documentUrl || details.initiator)) return;
+    const pageUrl =
+      details.type === 'main_frame'
+        ? details.url
+        : existing?.currentUrl || (details as { documentUrl?: string }).documentUrl || details.initiator;
+    if (!isTracked(pageUrl)) return;
     const session = getOrCreateSession(details.tabId);
     const req: RawNetworkRequest = {
       requestId: details.requestId,
@@ -357,7 +330,7 @@ chrome.cookies.onChanged.addListener((changeInfo) => {
 
   const now = Date.now();
   for (const [tabId, session] of sessions.entries()) {
-    if (!session.currentUrl || isPaused(session.currentUrl)) continue;
+    if (!isTracked(session.currentUrl)) continue;
     if (!cookieMatchesUrl(cookie.domain, session.currentUrl)) continue;
     recordCookie(session, {
       name: cookie.name,
@@ -387,7 +360,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
   // Send immediate state snapshot
   restoreSessionIfNeeded(tabId).then(async (session) => {
-    if (session.currentUrl) {
+    if (isTracked(session.currentUrl)) {
       await snapshotTabCookies(session, session.currentUrl);
     }
     recomputeDerivedState(session);
@@ -434,7 +407,7 @@ chrome.runtime.onMessage.addListener(
       case 'PAGE_OBSERVER_EVENT': {
         const tabId = sender.tab?.id;
         if (typeof tabId !== 'number' || tabId < 0) return false;
-        if (isPaused(sender.tab?.url)) return false;
+        if (!isTracked(sender.tab?.url)) return false;
         const session = getOrCreateSession(tabId, sender.tab?.url ?? '');
         recordPageObserverEvent(session, message.event);
         scheduleBroadcast(tabId);
@@ -442,7 +415,7 @@ chrome.runtime.onMessage.addListener(
       }
 
       case 'DEVTOOLS_NETWORK_REQUEST': {
-        if (isPaused(sessions.get(message.tabId)?.currentUrl || message.request.pageUrl)) {
+        if (!isTracked(sessions.get(message.tabId)?.currentUrl || message.request.pageUrl)) {
           return false;
         }
         const session = getOrCreateSession(

@@ -10,8 +10,8 @@ Fatos principais:
 - Quatro estados por tag: carregado, disparado, falhou e carregou sem disparar.
 - Diagnósticos: tag antes do consentimento, hit perdido (ERR_BLOCKED_BY_CLIENT, ERR_ABORTED, HTTP 4xx/5xx), evento de conversão sem hit em 5 s, disparo duplicado, conversão sem event_id, várias propriedades GA4 ou containers GTM, PII na URL, gclid/fbclid não gravado em cookie e script carregado sem disparo.
 - Onde aparece: aba "Tags" no DevTools e painel lateral do Chrome (sem precisar abrir o DevTools).
-- Privacidade: funciona só nos sites que o usuário ativa; nenhum dado sai do navegador; a sessão é apagada ao fechar a aba; e-mails, telefones e hashes ficam mascarados. Um switch pausa a extensão em todos os sites sem remover as permissões.
-- Requisitos: Google Chrome 116 ou mais novo. Versão atual: 0.1.2.
+- Privacidade: funciona só nos sites que o usuário ativa; nenhum dado sai do navegador; a sessão é apagada ao fechar a aba; e-mails, telefones e hashes ficam mascarados. Desligar o switch remove a permissão de todos os sites; religar pede só a do site aberto.
+- Requisitos: Google Chrome 116 ou mais novo. Versão atual: 0.1.3.
 - Preço: grátis.
 - Status: em análise na Chrome Web Store; por enquanto a instalação é pelo Modo do desenvolvedor do Chrome.
 - Autor: Rafael Ferreira (https://github.com/RafaelFariaFerreira).
@@ -19,7 +19,7 @@ Fatos principais:
 ## Links
 
 - [Site](https://rafaelfariaferreira.github.io/tag-companion/): página da extensão, com capturas de tela e instruções
-- [Download (.zip, v0.1.2)](https://github.com/RafaelFariaFerreira/tag-companion/releases/download/v0.1.2/tag-companion.zip): a extensão pronta para carregar no Chrome
+- [Download (.zip, v0.1.3)](https://github.com/RafaelFariaFerreira/tag-companion/releases/download/v0.1.3/tag-companion.zip): a extensão pronta para carregar no Chrome
 - [Código-fonte no GitHub](https://github.com/RafaelFariaFerreira/tag-companion): README com arquitetura, diagramas e guia para contribuir
 - [Licença MIT](https://github.com/RafaelFariaFerreira/tag-companion/blob/main/LICENSE)
 

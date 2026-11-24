@@ -13,7 +13,6 @@ import type { ConsentValue, TabSession } from '@/shared/types';
 interface TopBarProps {
   session: TabSession | null;
   originGranted: boolean;
-  paused: boolean;
   onSetMonitoring: (on: boolean) => void;
   isRestrictedPage: boolean;
   maskPii: boolean;
@@ -47,7 +46,6 @@ function ConsentValueMark({ value }: { value: ConsentValue }) {
 export function TopBar({
   session,
   originGranted,
-  paused,
   onSetMonitoring,
   isRestrictedPage,
   maskPii,
@@ -62,13 +60,11 @@ export function TopBar({
   const host = getHostname(session?.currentUrl ?? '');
   const consent = session?.consent;
   const preserveLog = session?.preserveLog ?? true;
-  const monitoring = !paused && originGranted;
-  const switchLabel = paused ? 'Pausado' : monitoring ? 'Monitorando' : 'Desativado';
-  const switchTitle = paused
-    ? 'Ligar a extensão de novo em todos os sites'
-    : monitoring
-      ? 'Pausar a extensão em todos os sites (as permissões continuam)'
-      : `Ativar o monitoramento em ${host || 'este site'} (pede permissão)`;
+  const monitoring = originGranted;
+  const switchLabel = monitoring ? 'Monitorando' : 'Desligado';
+  const switchTitle = monitoring
+    ? 'Desligar a extensão: remove a permissão de todos os sites'
+    : `Ligar o monitoramento em ${host || 'este site'} (pede permissão só para ele)`;
 
   return (
     <header className="bg-cotton border-b border-rule">
@@ -78,7 +74,7 @@ export function TopBar({
             <img src="/icons/icon-32.png" width={20} height={20} alt="" className="h-5 w-5" />
             {compact ? <span className="sr-only">Tag Companion</span> : 'Tag Companion'}
           </span>
-          {(!isRestrictedPage || paused) && (
+          {!isRestrictedPage && (
             <button
               type="button"
               role="switch"
@@ -191,24 +187,12 @@ export function TopBar({
         </div>
       </div>
 
-      {paused && (
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-rule bg-paper-2 px-3 py-2">
-          <p className="text-[13px] text-ink-2 min-w-0 flex-1 basis-60">
-            <strong className="font-semibold text-ink">Extensão pausada em todos os sites.</strong> Nada é
-            coletado até você retomar; as permissões continuam e o que aparece abaixo foi capturado antes.
-          </p>
-          <button type="button" onClick={() => onSetMonitoring(true)} className="btn btn-outline">
-            Retomar
-          </button>
-        </div>
-      )}
-
-      {!isRestrictedPage && !paused && !originGranted && (
+      {!isRestrictedPage && !originGranted && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-warn/40 bg-warn/12 px-3 py-2.5">
           <p className="text-[13px] text-ink-2 min-w-0 flex-1 basis-60">
-            Ative o monitoramento em <strong className="font-semibold text-ink">{host || 'este site'}</strong>{' '}
-            para ver o <code className="num text-xs">dataLayer</code>, os cookies de marketing e
-            hits bloqueados.
+            A extensão não grava nada em <strong className="font-semibold text-ink">{host || 'este site'}</strong>.
+            Ative para ver os hits, o <code className="num text-xs">dataLayer</code> e os cookies de
+            marketing; a permissão vale só para este site.
           </p>
           <button type="button" onClick={onRequestPermission} className="btn btn-ink">
             Ativar neste site
