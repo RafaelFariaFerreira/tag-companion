@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RuntimeMessage, TabSession } from '@/shared/types';
 import { createTabSession, extractOrigin } from '@/core/session-store';
-import { PAUSED_SITES_KEY, isSitePaused, originsForSite, siteKey } from '@/shared/paused-sites';
+import { PAUSED_KEY, originsForSite, readPaused } from '@/shared/paused-sites';
 
 export interface UseSessionResult {
   tabId: number | null;
   session: TabSession | null;
   originGranted: boolean;
-  /** Collection paused on this site by the user (the permission is kept). */
-  sitePaused: boolean;
+  /** The whole extension is paused by the user, on every site (permissions are kept). */
+  paused: boolean;
   isRestrictedPage: boolean;
-  /** The header switch: on = granted and not paused. Turning it on asks for permission when needed. */
+  /** The header switch: off pauses everywhere; on resumes, or asks for this site's permission when not paused. */
   setMonitoring: (on: boolean) => Promise<void>;
   requestOriginPermission: () => Promise<boolean>;
   clearSession: () => Promise<void>;
@@ -27,21 +27,21 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
   const [tabUrl, setTabUrl] = useState<string>('');
   const [session, setSession] = useState<TabSession | null>(null);
   const [originGranted, setOriginGranted] = useState<boolean>(false);
-  const [pausedSites, setPausedSites] = useState<string[]>([]);
+  const [paused, setPaused] = useState<boolean>(false);
 
-  // Paused sites live in chrome.storage.local so the service worker sees the same list.
+  // The pause lives in chrome.storage.local so the service worker and every panel share it.
   useEffect(() => {
     if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
     chrome.storage.local
-      .get(PAUSED_SITES_KEY)
-      .then((stored) => setPausedSites((stored?.[PAUSED_SITES_KEY] as string[] | undefined) ?? []))
+      .get(PAUSED_KEY)
+      .then((stored) => setPaused(readPaused(stored)))
       .catch(() => {});
     const onChanged = (
       changes: Record<string, chrome.storage.StorageChange>,
       area: string,
     ) => {
-      if (area === 'local' && changes[PAUSED_SITES_KEY]) {
-        setPausedSites((changes[PAUSED_SITES_KEY].newValue as string[] | undefined) ?? []);
+      if (area === 'local' && changes[PAUSED_KEY]) {
+        setPaused(changes[PAUSED_KEY].newValue === true);
       }
     };
     chrome.storage.onChanged.addListener(onChanged);
@@ -198,29 +198,26 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
     }
   }, [currentOrigin, isRestrictedPage, tabId]);
 
-  const sitePaused = isSitePaused(currentUrl, pausedSites);
-
-  const writePaused = useCallback(async (key: string, paused: boolean) => {
-    if (!key || typeof chrome === 'undefined' || !chrome.storage?.local) return;
-    const stored = await chrome.storage.local.get(PAUSED_SITES_KEY).catch(() => ({}));
-    const list = ((stored as Record<string, unknown>)[PAUSED_SITES_KEY] as string[] | undefined) ?? [];
-    const next = paused ? [...new Set([...list, key])] : list.filter((k) => k !== key);
-    setPausedSites(next);
-    await chrome.storage.local.set({ [PAUSED_SITES_KEY]: next });
+  const writePaused = useCallback(async (value: boolean) => {
+    setPaused(value);
+    if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+    await chrome.storage.local.set({ [PAUSED_KEY]: value });
   }, []);
 
   const setMonitoring = useCallback(
     async (on: boolean) => {
-      if (isRestrictedPage) return;
-      const key = siteKey(currentUrl);
       if (!on) {
-        await writePaused(key, true);
+        await writePaused(true);
         return;
       }
-      await writePaused(key, false);
-      if (!originGranted) await requestOriginPermission();
+      if (paused) {
+        // Resuming turns the extension back on everywhere; a site without permission still asks for it.
+        await writePaused(false);
+        return;
+      }
+      if (!isRestrictedPage && !originGranted) await requestOriginPermission();
     },
-    [currentUrl, isRestrictedPage, originGranted, requestOriginPermission, writePaused],
+    [isRestrictedPage, originGranted, paused, requestOriginPermission, writePaused],
   );
 
   const clearSession = useCallback(async () => {
@@ -251,7 +248,7 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
     tabId,
     session,
     originGranted,
-    sitePaused,
+    paused,
     isRestrictedPage,
     setMonitoring,
     requestOriginPermission,

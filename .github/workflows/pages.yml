@@ -1,7 +1,7 @@
 name: Publicar site
 
 # O site é estático: a pasta site/ vai direto para o GitHub Pages.
-# O download aponta para o .zip anexado à release (releases/latest/download/tag-companion.zip).
+# O download aponta para o .zip anexado à release (releases/download/vX.Y.Z/tag-companion.zip, atualizado a cada release).
 on:
   push:
     branches: [main]

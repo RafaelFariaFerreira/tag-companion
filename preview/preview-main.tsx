@@ -9,8 +9,8 @@ const mode = (params.get('mode') as 'devtools' | 'sidepanel') ?? 'devtools';
 const empty = params.has('empty');
 const session = empty ? null : seedSession();
 const noop = { addListener() {}, removeListener() {} };
-// In-memory chrome.storage.local with change events (?paused starts the demo site paused)
-const store: Record<string, unknown> = params.has('paused') ? { pausedSites: ['loja.exemplo.com.br'] } : {};
+// In-memory chrome.storage.local with change events (?paused starts the extension paused)
+const store: Record<string, unknown> = params.has('paused') ? { extensionPaused: true } : {};
 const storageListeners = new Set<(c: Record<string, { oldValue?: unknown; newValue?: unknown }>, area: string) => void>();
 let granted_ = !params.has('nogrant');
 (globalThis as any).chrome = {

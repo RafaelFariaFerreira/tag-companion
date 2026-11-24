@@ -26,7 +26,7 @@ export function App({ mode }: AppProps) {
   const {
     session: liveSession,
     originGranted,
-    sitePaused,
+    paused,
     isRestrictedPage,
     setMonitoring,
     requestOriginPermission,
@@ -143,7 +143,7 @@ export function App({ mode }: AppProps) {
       <TopBar
         session={session}
         originGranted={originGranted}
-        sitePaused={sitePaused}
+        paused={paused}
         onSetMonitoring={setMonitoring}
         isRestrictedPage={isRestrictedPage}
         maskPii={maskPii}

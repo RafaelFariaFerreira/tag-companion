@@ -13,7 +13,7 @@ import type { ConsentValue, TabSession } from '@/shared/types';
 interface TopBarProps {
   session: TabSession | null;
   originGranted: boolean;
-  sitePaused: boolean;
+  paused: boolean;
   onSetMonitoring: (on: boolean) => void;
   isRestrictedPage: boolean;
   maskPii: boolean;
@@ -47,7 +47,7 @@ function ConsentValueMark({ value }: { value: ConsentValue }) {
 export function TopBar({
   session,
   originGranted,
-  sitePaused,
+  paused,
   onSetMonitoring,
   isRestrictedPage,
   maskPii,
@@ -62,12 +62,12 @@ export function TopBar({
   const host = getHostname(session?.currentUrl ?? '');
   const consent = session?.consent;
   const preserveLog = session?.preserveLog ?? true;
-  const monitoring = originGranted && !sitePaused;
-  const switchLabel = monitoring ? 'Monitorando' : sitePaused && originGranted ? 'Pausado' : 'Desativado';
-  const switchTitle = monitoring
-    ? `Pausar a coleta em ${host || 'este site'} (a permissão continua)`
-    : originGranted
-      ? `Retomar a coleta em ${host || 'este site'}`
+  const monitoring = !paused && originGranted;
+  const switchLabel = paused ? 'Pausado' : monitoring ? 'Monitorando' : 'Desativado';
+  const switchTitle = paused
+    ? 'Ligar a extensão de novo em todos os sites'
+    : monitoring
+      ? 'Pausar a extensão em todos os sites (as permissões continuam)'
       : `Ativar o monitoramento em ${host || 'este site'} (pede permissão)`;
 
   return (
@@ -78,12 +78,12 @@ export function TopBar({
             <img src="/icons/icon-32.png" width={20} height={20} alt="" className="h-5 w-5" />
             {compact ? <span className="sr-only">Tag Companion</span> : 'Tag Companion'}
           </span>
-          {!isRestrictedPage && (
+          {(!isRestrictedPage || paused) && (
             <button
               type="button"
               role="switch"
               aria-checked={monitoring}
-              aria-label={`Coleta neste site: ${switchLabel}`}
+              aria-label={`Tag Companion: ${switchLabel}`}
               title={switchTitle}
               onClick={() => onSetMonitoring(!monitoring)}
               className="switch shrink-0"
@@ -191,11 +191,11 @@ export function TopBar({
         </div>
       </div>
 
-      {!isRestrictedPage && originGranted && sitePaused && (
+      {paused && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-rule bg-paper-2 px-3 py-2">
           <p className="text-[13px] text-ink-2 min-w-0 flex-1 basis-60">
-            Coleta pausada em <strong className="font-semibold text-ink">{host || 'este site'}</strong>. A
-            permissão continua; o que aparece abaixo foi capturado antes da pausa.
+            <strong className="font-semibold text-ink">Extensão pausada em todos os sites.</strong> Nada é
+            coletado até você retomar; as permissões continuam e o que aparece abaixo foi capturado antes.
           </p>
           <button type="button" onClick={() => onSetMonitoring(true)} className="btn btn-outline">
             Retomar
@@ -203,7 +203,7 @@ export function TopBar({
         </div>
       )}
 
-      {!isRestrictedPage && !originGranted && (
+      {!isRestrictedPage && !paused && !originGranted && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-warn/40 bg-warn/12 px-3 py-2.5">
           <p className="text-[13px] text-ink-2 min-w-0 flex-1 basis-60">
             Ative o monitoramento em <strong className="font-semibold text-ink">{host || 'este site'}</strong>{' '}

@@ -1,33 +1,15 @@
 /**
- * Per-site pause: the user keeps the host permission but stops collection.
- * Stored in chrome.storage.local as a list of site keys (hostname without "www.").
- * A key covers the host itself and its subdomains.
+ * Global pause: the switch turns the whole extension off, on every site.
+ * Stored in chrome.storage.local as a boolean so the service worker and every panel see the same state.
+ * Host permissions are kept; resuming picks up where it left off.
  */
-export const PAUSED_SITES_KEY = 'pausedSites';
+export const PAUSED_KEY = 'extensionPaused';
 
-export function siteKey(url: string): string {
-  try {
-    const { hostname } = new URL(url);
-    return hostname.replace(/^www\./i, '').toLowerCase();
-  } catch {
-    return '';
-  }
-}
+/** Key of the old per-site pause list (v0.1.1), removed on install/update. */
+export const LEGACY_PAUSED_SITES_KEY = 'pausedSites';
 
-export function isSitePaused(url: string | undefined, pausedSites: readonly string[]): boolean {
-  if (!url || pausedSites.length === 0) return false;
-  let hostname = '';
-  try {
-    hostname = new URL(url).hostname.toLowerCase();
-  } catch {
-    return false;
-  }
-  return pausedSites.some((key) => hostname === key || hostname.endsWith(`.${key}`));
-}
-
-/** Match patterns that cover a paused site, for excludeMatches. */
-export function pausedSitePatterns(pausedSites: readonly string[]): string[] {
-  return pausedSites.flatMap((key) => [`*://${key}/*`, `*://*.${key}/*`]);
+export function readPaused(stored: Record<string, unknown> | undefined): boolean {
+  return stored?.[PAUSED_KEY] === true;
 }
 
 /**

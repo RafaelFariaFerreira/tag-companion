@@ -20,7 +20,7 @@ A extensão está em análise na Chrome Web Store. Assim que for publicada, o li
 
 ### Enquanto isso, instale manualmente
 
-1. Baixe o [`tag-companion.zip`](https://github.com/RafaelFariaFerreira/tag-companion/releases/latest/download/tag-companion.zip) (última versão) e descompacte numa pasta.
+1. Baixe o [`tag-companion.zip`](https://github.com/RafaelFariaFerreira/tag-companion/releases/download/v0.1.2/tag-companion.zip) (v0.1.2) e descompacte numa pasta.
 2. No Chrome, abra `chrome://extensions`.
 3. Ligue o **Modo do desenvolvedor**, no canto superior direito.
 4. Clique em **Carregar sem compactação** e escolha a pasta descompactada.
@@ -85,7 +85,7 @@ pnpm preview:ui    # a interface com dados de exemplo, sem precisar da extensão
 ```
 
 - **Carregar a extensão:** `chrome://extensions` → **Carregar sem compactação** → pasta `dist/`.
-- **Preview:** abre em `http://localhost:5199/preview/index.html`. Parâmetros: `?mode=sidepanel` para o painel estreito, `&nogrant` para o estado sem permissão, `&paused` para o site pausado. Os dados do preview são fictícios.
+- **Preview:** abre em `http://localhost:5199/preview/index.html`. Parâmetros: `?mode=sidepanel` para o painel estreito, `&nogrant` para o estado sem permissão, `&paused` para a extensão pausada. Os dados do preview são fictícios.
 - **Página de teste:** `npx serve demo` serve `demo/test-site.html`, com cenários de tags para disparar.
 
 **Stack:** TypeScript, React 19, Tailwind CSS 4, Vite e Vitest. O núcleo (`src/core/`) é TypeScript puro, sem APIs do Chrome, e é ele que concentra os testes.
@@ -98,7 +98,7 @@ Tudo o que a extensão coleta converge para o **service worker**, que mantém um
 
 | Peça | Arquivo | Papel |
 | --- | --- | --- |
-| Service worker | `src/background/service-worker.ts` | Escuta a rede, os cookies e as mensagens; guarda a sessão por aba; registra os scripts de observação só nos sites ativados e não pausados. |
+| Service worker | `src/background/service-worker.ts` | Escuta a rede, os cookies e as mensagens; guarda a sessão por aba; registra os scripts de observação só nos sites ativados e só enquanto a extensão não está pausada. |
 | Observador da página | `src/collectors/page-observer-core.ts` | Roda no mundo `MAIN` em `document_start`; envolve `dataLayer.push` e `gtag()` e detecta globais de vendors. |
 | Ponte de conteúdo | `src/collectors/content-bridge.ts` | Mundo `ISOLATED`: recebe o `postMessage` da página e repassa ao service worker. |
 | Ponte do DevTools | `src/devtools/network-bridge.ts` | Completa os hits com o corpo POST inteiro e a pilha do initiator, usada para saber se o tag veio do GTM. |
@@ -121,7 +121,7 @@ Na interface, cada estado tem uma forma própria (anel, disco, X, anel tracejado
 ![Permissão e pausa](docs/images/diagram-permissions.png)
 
 - Os domínios dos vendors vêm declarados no `manifest.json`. O site auditado fica em `optional_host_permissions` e só é pedido quando o usuário ativa, valendo para o site e seus subdomínios (nunca para um sufixo como `.com.br`).
-- A pausa é guardada em `chrome.storage.local` (`src/shared/paused-sites.ts`). Ao pausar, o service worker tira os scripts do site e ignora os eventos dele, mas mantém a permissão.
+- O switch liga e desliga a extensão inteira, em todos os sites. A pausa é um booleano em `chrome.storage.local` (`src/shared/paused-sites.ts`). Pausado, o service worker tira os scripts de todos os sites, ignora todos os eventos e mostra `OFF` no ícone, mas mantém as permissões.
 
 ### Núcleo
 

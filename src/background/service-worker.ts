@@ -16,27 +16,33 @@ import {
   recordPageObserverEvent,
 } from '@/core/session-store';
 import { cookieMatchesUrl, snapshotTabCookies } from './cookie-collector';
-import {
-  PAUSED_SITES_KEY,
-  isSitePaused,
-  pausedSitePatterns,
-} from '@/shared/paused-sites';
+import { LEGACY_PAUSED_SITES_KEY, PAUSED_KEY, readPaused } from '@/shared/paused-sites';
 
 const sessions = new Map<number, TabSession>();
 const tabPorts = new Map<number, Set<chrome.runtime.Port>>();
 const broadcastTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-// Sites where the user paused collection without revoking the host permission.
-let pausedSites: string[] = [];
-const pausedSitesReady = chrome.storage.local
-  .get(PAUSED_SITES_KEY)
+// Global pause: when on, the extension collects nothing on any site (host permissions are kept).
+let paused = false;
+const pausedReady = chrome.storage.local
+  .get(PAUSED_KEY)
   .then((stored) => {
-    pausedSites = (stored?.[PAUSED_SITES_KEY] as string[] | undefined) ?? [];
+    paused = readPaused(stored);
+    updatePausedBadge();
   })
   .catch(() => {});
 
-function isPaused(url: string | undefined): boolean {
-  return isSitePaused(url, pausedSites);
+// Every call site passes the page URL; the pause is global, so the URL no longer matters.
+function isPaused(_url?: string): boolean {
+  return paused;
+}
+
+function updatePausedBadge(): void {
+  chrome.action?.setBadgeText({ text: paused ? 'OFF' : '' }).catch(() => {});
+  chrome.action?.setBadgeBackgroundColor({ color: '#6e6662' }).catch(() => {});
+  chrome.action
+    ?.setTitle({ title: paused ? 'Tag Companion — Pausado' : 'Tag Companion — Abrir painel lateral' })
+    .catch(() => {});
 }
 
 const MAIN_SCRIPT_ID = 'tag-companion-page-observer';
@@ -166,10 +172,8 @@ async function syncRegisteredContentScripts(): Promise<void> {
       await chrome.scripting.unregisterContentScripts({ ids: existingIds });
     }
 
-    if (origins.length === 0) return;
-
-    await pausedSitesReady;
-    const excludeMatches = pausedSitePatterns(pausedSites);
+    await pausedReady;
+    if (origins.length === 0 || paused) return;
 
     await chrome.scripting.registerContentScripts([
       {
@@ -179,7 +183,6 @@ async function syncRegisteredContentScripts(): Promise<void> {
         runAt: 'document_start',
         world: 'ISOLATED',
         allFrames: false,
-        excludeMatches,
       },
       {
         id: MAIN_SCRIPT_ID,
@@ -188,7 +191,6 @@ async function syncRegisteredContentScripts(): Promise<void> {
         runAt: 'document_start',
         world: 'MAIN',
         allFrames: false,
-        excludeMatches,
       },
     ]);
   } catch {
@@ -219,6 +221,7 @@ chrome.sidePanel
   .catch(() => {});
 
 chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.remove(LEGACY_PAUSED_SITES_KEY).catch(() => {});
   syncRegisteredContentScripts();
 });
 
@@ -234,18 +237,19 @@ chrome.permissions.onRemoved.addListener(() => {
   syncRegisteredContentScripts();
 });
 
-// Pause / resume from the UI switch: re-register scripts and, on resume,
-// start observing open tabs of that site right away (no reload needed for new events).
+// Pause / resume from the UI switch. Pausing unregisters the scripts everywhere;
+// resuming registers them again and starts observing open tabs right away (no reload needed).
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes[PAUSED_SITES_KEY]) return;
-  const before = pausedSites;
-  pausedSites = (changes[PAUSED_SITES_KEY].newValue as string[] | undefined) ?? [];
-  const resumed = before.filter((key) => !pausedSites.includes(key));
+  if (area !== 'local' || !changes[PAUSED_KEY]) return;
+  const wasPaused = paused;
+  paused = changes[PAUSED_KEY].newValue === true;
+  updatePausedBadge();
   syncRegisteredContentScripts().then(async () => {
-    if (resumed.length === 0) return;
+    if (!wasPaused || paused) return;
     const tabs = await chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[]);
     for (const tab of tabs) {
-      if (tab.id !== undefined && tab.url && isSitePaused(tab.url, resumed)) {
+      // injectIntoTab fails silently on sites without permission; the observers guard against double install.
+      if (tab.id !== undefined && tab.url && /^https?:\/\//i.test(tab.url)) {
         injectIntoTab(tab.id);
       }
     }
