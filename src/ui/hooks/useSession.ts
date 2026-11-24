@@ -191,7 +191,9 @@ export function useSession(mode: 'devtools' | 'sidepanel'): UseSessionResult {
         } satisfies RuntimeMessage);
       }
       return granted;
-    } catch {
+    } catch (err) {
+      // Never swallow this silently: a rejected request looks like "the button does nothing".
+      console.error('Tag Companion: não foi possível pedir a permissão do site', err);
       return false;
     }
   }, [currentOrigin, isRestrictedPage, tabId]);

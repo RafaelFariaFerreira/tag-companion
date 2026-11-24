@@ -28,14 +28,19 @@ describe('Per-site pause', () => {
 
   it('requests the site and its subdomains only, never the public suffix', () => {
     const origins = originsForSite('https://loja.exemplo.com.br');
-    expect(origins).toContain('https://loja.exemplo.com.br/*');
-    expect(origins).toContain('*://*.loja.exemplo.com.br/*');
-    expect(origins.some((o) => o.includes('*.com.br/*') && !o.includes('exemplo'))).toBe(false);
+    expect(origins).toEqual(['https://loja.exemplo.com.br/*', 'https://*.loja.exemplo.com.br/*']);
     expect(originsForSite('https://www.loja.com')).toEqual([
       'https://www.loja.com/*',
-      '*://loja.com/*',
-      '*://*.loja.com/*',
+      'https://loja.com/*',
+      'https://*.loja.com/*',
     ]);
+    expect(originsForSite('http://app.loja.com')).toContain('http://*.app.loja.com/*');
     expect(originsForSite('http://localhost:3000')).toEqual(['http://localhost:3000/*']);
+  });
+
+  it('never uses a wildcard scheme, which chrome.permissions.request rejects', () => {
+    for (const site of ['https://a.com', 'http://www.b.com.br', 'https://x.y.z.io']) {
+      for (const o of originsForSite(site)) expect(o.startsWith('*://')).toBe(false);
+    }
   });
 });

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tag Companion",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mostra o que os tags de fato enviaram: dataLayer, hits decodificados, consentimento, cookies e diagnósticos automáticos.",
   "icons": {
     "16": "icons/icon-16.png",
