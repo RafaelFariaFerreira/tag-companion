@@ -9,7 +9,8 @@ export type VendorId =
   | 'tiktok'
   | 'reddit'
   | 'x_pixel'
-  | 'mixpanel';
+  | 'mixpanel'
+  | 'openai_ads';
 
 export type VendorCategory =
   | 'tag_manager'
@@ -149,6 +150,7 @@ export interface NavigationEvent {
   clickIds: {
     gclid?: string;
     fbclid?: string;
+    oppref?: string;
   };
 }
 
@@ -200,6 +202,8 @@ export interface VendorGroup {
 export interface PageClickIdRecord {
   gclid?: string;
   fbclid?: string;
+  /** OpenAI Ads click reference (ChatGPT ads). */
+  oppref?: string;
   detectedAt: number;
   pageUrl: string;
 }

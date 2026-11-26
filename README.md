@@ -20,7 +20,7 @@ A extensão está em análise na Chrome Web Store. Assim que for publicada, o li
 
 ### Enquanto isso, instale manualmente
 
-1. Baixe o [`tag-companion.zip`](https://github.com/RafaelFariaFerreira/tag-companion/releases/download/v0.1.4/tag-companion.zip) (v0.1.4) e descompacte numa pasta.
+1. Baixe o [`tag-companion.zip`](https://github.com/RafaelFariaFerreira/tag-companion/releases/download/v0.1.5/tag-companion.zip) (v0.1.5) e descompacte numa pasta.
 2. No Chrome, abra `chrome://extensions`.
 3. Ligue o **Modo do desenvolvedor**, no canto superior direito.
 4. Clique em **Carregar sem compactação** e escolha a pasta descompactada.
@@ -57,7 +57,7 @@ Para parar de observar um site sem perder a permissão, desligue o switch ao lad
 
 **No DevTools ou ao lado da página.** A mesma interface nos dois lugares.
 
-**Vendors suportados:** GTM e sGTM, GA4, Google Ads, Meta Pixel, LinkedIn Insight, HubSpot, Microsoft Clarity, TikTok, Reddit, X e Mixpanel.
+**Vendors suportados:** GTM e sGTM, GA4, Google Ads, Meta Pixel, LinkedIn Insight, HubSpot, Microsoft Clarity, TikTok, Reddit, X, Mixpanel e OpenAI Ads (o pixel `oaiq` dos anúncios do ChatGPT).
 
 ## Perguntas frequentes
 

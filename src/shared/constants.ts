@@ -150,6 +150,20 @@ export const MARKETING_COOKIES: MarketingCookieDef[] = [
     requiresConsent: 'ad_storage',
     description: 'Identificador do Reddit Pixel',
   },
+  {
+    pattern: /^__oppref$/,
+    vendorId: 'openai_ads',
+    vendorName: 'OpenAI Ads',
+    requiresConsent: 'ad_storage',
+    description: 'Cookie de clique (oppref) dos anúncios do ChatGPT, 30 dias',
+  },
+  {
+    pattern: /^__obref$/,
+    vendorId: 'openai_ads',
+    vendorName: 'OpenAI Ads',
+    requiresConsent: 'ad_storage',
+    description: 'Identificador do navegador do pixel da OpenAI, 365 dias',
+  },
 ];
 
 export const VENDOR_DISPLAY_NAMES: Record<VendorId, string> = {
@@ -164,6 +178,7 @@ export const VENDOR_DISPLAY_NAMES: Record<VendorId, string> = {
   reddit: 'Reddit Pixel',
   x_pixel: 'X Pixel',
   mixpanel: 'Mixpanel',
+  openai_ads: 'OpenAI Ads',
 };
 
 export const ADS_VENDORS = new Set<VendorId>([
@@ -173,6 +188,7 @@ export const ADS_VENDORS = new Set<VendorId>([
   'tiktok',
   'reddit',
   'x_pixel',
+  'openai_ads',
 ]);
 
 export const ANALYTICS_VENDORS = new Set<VendorId>([

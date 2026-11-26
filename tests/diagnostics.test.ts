@@ -265,6 +265,26 @@ describe('Automated Diagnostics Engine (All 9 Rules)', () => {
     ).toHaveLength(0);
   });
 
+  it('8b. flags click_id_not_stored for an OpenAI Ads oppref without the __oppref cookie', () => {
+    const t0 = 100_000;
+    const session = createTabSession(1, 'https://loja.com/?oppref=opp_abc123', true, t0);
+
+    recomputeDerivedState(session, t0 + 4000);
+    const alerts = session.diagnostics.filter((d) => d.ruleId === 'click_id_not_stored');
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0].vendorId).toBe('openai_ads');
+
+    recordCookie(session, {
+      name: '__oppref',
+      value: 'opp_abc123',
+      domain: '.loja.com',
+      path: '/',
+      timestamp: t0 + 4200,
+    });
+    recomputeDerivedState(session, t0 + 4500);
+    expect(session.diagnostics.filter((d) => d.ruleId === 'click_id_not_stored')).toHaveLength(0);
+  });
+
   it('9. flags loaded_no_fire with consent context when script loads without hits', () => {
     const t0 = 100_000;
     const session = createTabSession(1, 'https://chargeblast.com', true, t0);

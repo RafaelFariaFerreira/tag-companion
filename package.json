@@ -1,6 +1,6 @@
 {
   "name": "tag-companion",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "Extensão do Chrome que mostra o que os tags de fato enviaram: dataLayer, hits decodificados, consentimento, cookies e diagnósticos automáticos.",
   "license": "MIT",

@@ -7,6 +7,7 @@ import { metaPixelVendor } from './meta-pixel';
 import { linkedinVendor } from './linkedin';
 import { hubspotVendor } from './hubspot';
 import { clarityVendor } from './clarity';
+import { openAiAdsVendor } from './openai-ads';
 import {
   mixpanelVendor,
   redditVendor,
@@ -26,6 +27,7 @@ export const VENDOR_MODULES: VendorModule[] = [
   redditVendor,
   xPixelVendor,
   mixpanelVendor,
+  openAiAdsVendor,
 ];
 
 const VENDOR_BY_ID = new Map<VendorId, VendorModule>(

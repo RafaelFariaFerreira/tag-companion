@@ -41,12 +41,17 @@ export function extractOrigin(url: string): string {
   return parsed ? parsed.origin : '';
 }
 
-export function extractClickIds(url: string): { gclid?: string; fbclid?: string } {
+export function extractClickIds(url: string): { gclid?: string; fbclid?: string; oppref?: string } {
   const parsed = safeParseUrl(url);
   if (!parsed) return {};
   const gclid = parsed.searchParams.get('gclid') ?? undefined;
   const fbclid = parsed.searchParams.get('fbclid') ?? undefined;
-  return { gclid, fbclid };
+  const oppref = parsed.searchParams.get('oppref') ?? undefined;
+  return { gclid, fbclid, oppref };
+}
+
+function hasClickId(ids: { gclid?: string; fbclid?: string; oppref?: string }): boolean {
+  return Boolean(ids.gclid || ids.fbclid || ids.oppref);
 }
 
 export function createTabSession(
@@ -71,7 +76,7 @@ export function createTabSession(
     cookies: [],
     navigations: [],
     clickIds:
-      clickIds.gclid || clickIds.fbclid
+      hasClickId(clickIds)
         ? [{ ...clickIds, detectedAt: now, pageUrl: url }]
         : [],
     diagnostics: [],
@@ -99,7 +104,7 @@ export function recordNavigation(
   session.currentUrl = toUrl;
   session.origin = extractOrigin(toUrl);
 
-  if (clickIds.gclid || clickIds.fbclid) {
+  if (hasClickId(clickIds)) {
     session.clickIds.push({ ...clickIds, detectedAt: timestamp, pageUrl: toUrl });
   }
 
@@ -258,11 +263,12 @@ export function recordPageObserverEvent(
       session.origin = extractOrigin(pageUrl);
     }
     const clickIds = extractClickIds(pageUrl);
-    if (clickIds.gclid || clickIds.fbclid) {
+    if (hasClickId(clickIds)) {
       const already = session.clickIds.some(
         (c) =>
           c.gclid === clickIds.gclid &&
           c.fbclid === clickIds.fbclid &&
+          c.oppref === clickIds.oppref &&
           Math.abs(c.detectedAt - ts) < 5000,
       );
       if (!already) {

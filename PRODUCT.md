@@ -26,7 +26,7 @@ Runs inside two surfaces with equal priority: the DevTools "Tags" panel (wide, w
 
 - Views that must all remain: Por Vendor, Linha do tempo, Diagnósticos, Consentimento & Cookies, plus the detail inspector, JSON export, clear session, preserve log and PII masking toggle.
 - Four tag states: Carregado, Disparado, Falhou, Carregou mas não disparou.
-- Vendors: GTM/sGTM, GA4, Google Ads, Meta Pixel, LinkedIn, HubSpot, Clarity, TikTok, Reddit, X, Mixpanel.
+- Vendors: GTM/sGTM, GA4, Google Ads, Meta Pixel, LinkedIn, HubSpot, Clarity, TikTok, Reddit, X, Mixpanel, OpenAI Ads.
 - Stack: React 19, Tailwind CSS 4, lucide-react, Vite; UI shared by both surfaces.
 - Interface language: pt-BR.
 - Privacy: PII masked on screen and in exports by default; session data is local.

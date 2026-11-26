@@ -346,6 +346,21 @@ export function runDiagnostics(session: TabSession, now = Date.now()): Diagnosti
         relatedItemIds: [],
       });
     }
+
+    if (clickRecord.oppref && !cookieNames.has('__oppref')) {
+      diagnostics.push({
+        id: `diag:clickid:oppref:${clickRecord.detectedAt}`,
+        ruleId: 'click_id_not_stored',
+        severity: 'low',
+        title: 'oppref presente na URL, mas cookie __oppref não foi gravado',
+        description: `A URL continha oppref (clique em anúncio do ChatGPT), porém o cookie __oppref não apareceu após o carregamento (${formatConsentSummary(session.consent)}).`,
+        recommendation:
+          'Verifique se o pixel da OpenAI (oaiq) carrega nesta página e se oaiq("consent", false) não está bloqueando a gravação. Sem o __oppref, a conversão não é atribuída ao anúncio.',
+        timestamp: clickRecord.detectedAt,
+        vendorId: 'openai_ads',
+        relatedItemIds: [],
+      });
+    }
   }
 
   // 9. Carregou, não disparou (Média)

@@ -206,4 +206,72 @@ describe('Vendor Modules (match, parse, label)', () => {
     expect(mp?.hits[0].eventName).toBe('Demo Booked');
     expect(mp?.hits[0].accountId).toBe('mp_tok_1');
   });
+
+  it('detects the OpenAI Ads pixel script and splits a batched oaiq request into one hit per event', () => {
+    const script = matchVendorRequest('https://bzrcdn.openai.com/sdk/oaiq.min.js', 'script');
+    expect(script?.match.vendorId).toBe('openai_ads');
+    expect(script?.match.kind).toBe('script');
+    // Other OpenAI hosts are not the pixel
+    expect(matchVendorRequest('https://api.openai.com/v1/sdk/events', 'xmlhttprequest')).toBeNull();
+    expect(matchVendorRequest('https://chatgpt.com/', 'main_frame')).toBeNull();
+
+    // Body as sent by oaiq-web 0.1.105: text/plain JSON, envelope + events[]
+    const body = JSON.stringify({
+      obref: 'obr_123',
+      oppref: 'opp_abc',
+      user: { email_sha256: 'a'.repeat(64), country: 'BR' },
+      events: [
+        { type: 'openai::sdk_init', id: 'e0', timestamp_ms: 1, source_url: 'https://loja.com/', data: {} },
+        {
+          type: 'order_created',
+          id: 'order_12345',
+          timestamp_ms: 2,
+          source_url: 'https://loja.com/obrigado',
+          data: {
+            type: 'contents',
+            amount: 159800,
+            currency: 'BRL',
+            contents: [{ id: 'sku1', quantity: 2, amount: 79900, currency: 'BRL' }],
+          },
+        },
+        { type: 'custom', id: 'e2', custom_event_name: 'quote_requested', data: { type: 'custom' } },
+      ],
+    });
+    const res = parseVendorRequest(
+      makeReq({
+        url: 'https://bzr.openai.com/v1/sdk/events?pid=px_123&st=oaiq-web&sv=0.1.105&t=1&ec=3',
+        method: 'POST',
+        resourceType: 'xmlhttprequest',
+        requestBody: body,
+      }),
+    );
+    expect(res?.match.kind).toBe('hit');
+    expect(res?.match.accountId).toBe('px_123');
+    const hits = res!.hits;
+    expect(hits.map((h) => h.eventName)).toEqual(['sdk_init', 'order_created', 'quote_requested']);
+    expect(hits.every((h) => h.vendorId === 'openai_ads' && h.accountId === 'px_123')).toBe(true);
+    const order = hits[1];
+    expect(order.eventId).toBe('order_12345');
+    expect(order.rawParams['data.amount']).toBe('159800');
+    expect(order.rawParams['data.currency']).toBe('BRL');
+    expect(order.rawParams.oppref).toBe('opp_abc');
+    expect(order.rawParams['user.email_sha256']).toBe('a'.repeat(64));
+    expect(JSON.parse(order.rawParams['data.contents'])[0].id).toBe('sku1');
+    expect(labelVendorParam('openai_ads', 'user.email_sha256')).toBe('E-mail (SHA-256)');
+  });
+
+  it('parses the OpenAI Ads no-JavaScript image tag', () => {
+    const res = parseVendorRequest(
+      makeReq({
+        url:
+          'https://bzr.openai.com/v1/sdk/events?pid=px_9&event=order_created&event_id=o9' +
+          '&data[type]=contents&data[amount]=2599&data[currency]=USD',
+        resourceType: 'image',
+      }),
+    );
+    expect(res?.hits).toHaveLength(1);
+    expect(res?.hits[0].eventName).toBe('order_created');
+    expect(res?.hits[0].eventId).toBe('o9');
+    expect(res?.hits[0].rawParams['data.amount']).toBe('2599');
+  });
 });

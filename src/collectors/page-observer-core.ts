@@ -28,6 +28,7 @@ interface MutableWindow extends Record<string, unknown> {
   ttq?: unknown;
   rdt?: unknown;
   twq?: unknown;
+  oaiq?: unknown;
   mixpanel?: unknown;
 }
 
@@ -298,6 +299,7 @@ export function installPageObserver(rawWin: unknown): void {
     if (typeof win.rdt === 'function') reportGlobal('reddit', 'pixel.js');
     if (typeof win.twq === 'function') reportGlobal('x_pixel', 'uwt.js');
     if (win.mixpanel) reportGlobal('mixpanel', 'mixpanel.min.js');
+    if (typeof win.oaiq === 'function') reportGlobal('openai_ads', 'oaiq.min.js');
 
     // Complementary consent snapshot from window.google_tag_data.ics
     const entries = win.google_tag_data?.ics?.entries;
